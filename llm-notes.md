@@ -31,6 +31,20 @@ date: 3/2/2023
 # Papers & posts in details
 - Transformers
    - Thinking Like Transformers, 2021
+   - Transformers: State-of-the-Art Natural Language Processing, 2020, Huggingface
+      - Targets
+         - Extensible for researcher
+         - Simple for practioner
+         - Fast & robust for industrial deployment
+      - Core modules
+         - Transformers: MLM/Autoregression/Seq2Seq/Multimodal/Long-Distance/Efficient/Multilingual
+         - Tokenizers: Char. Level BPE/Byte Level BPE/WordPiece/SentencePiece/Unigram/Char./Custom
+         - Heads (Domain specific) : LM/Seq. Classification/QA/Token Classification(NER)/Multiple Choice/MLM/Cond. Generation
+      - Deployment
+         - model easy to switch from framework(say PyTorch) to the other one(say Tensorflow)
+         - export to intermediate neural network format
+         - use adapters to convert models to CoreML weights for edge devices
+
 - OpenAI GPT series: 
    - GPT-1: Improving Language Understanding by Generative Pre-Training, 2018, OpenAI (OK)
    - GPT-2: Language Models are Unsupervised Multitask Learners, 2019, OpenAI (OK)
@@ -39,12 +53,41 @@ date: 3/2/2023
       - Reference:
          - Fine-Tuning Language Models from Human Preferences, 2020, OpenAI 
             - Date: 3/2/2023
-               - Tasks: Stylistic continuation(in sentiment or genre)/Summarization
-               - Optimize over (x, {y_i}, b), LogLikelihood
-               - Logits consist of reward from LM r(x,y) and KL dist. between new and old model
-               - experiments:
-                  - summarization: pretrain 774M GPT-2 LM, then RL fine-tune
-                  - stylistic continuation: train with WebText from scrath, SFT on BookCorpus, then RL fine-tune
+            - Tasks: Stylistic continuation(in sentiment or genre) and Summarization
+            - Optimize over (x, {y_i}, b), LogLikelihood
+            - Logits consist of reward from LM r(x,y) and KL dist. between new and old model
+            - experiments:
+               - summarization: pretrain 774M GPT-2 LM, then RL fine-tune
+               - stylistic continuation: train with WebText from scrath, SFT on BookCorpus, then RL fine-tune
+         - Learning to summarize from human feedback, 2021, OpenAI
+            - Date: 3/21/2023
+            - Goal: advance methods for training language models on objectives that more closely capture the behavior we care about. 
+            - Task: Text summarization on Reddit TL;DR dataset
+            - Annotation quality: aggreement level between labeler and researcher
+               - charge by working hours instead of # of annotated samples.
+               - hands-on with annotators closely
+               - a detailed procedure for anotation
+            - Four steps in loop
+               - pre-trained model: 
+                  - Corpus: C4/Webtext/books/Wikipedia
+                  - 1~3 epoch on each, 300B tokens, context 2048
+               - supervised model
+                  - predict summary from Reddit summaries
+                  - initialized from pre-trained model, cosine LR schedule, log lineear sweep
+                  - batch size 128
+                  - sampling with T=0 for pair-wise evaluaiton by human
+                  - supervised model outperform SOTA on ROUGE score of CNN/DM dataset
+               - reward model
+                  - initialized from supervised model, replace the decoding matrix with a linear head to output scalar value
+                  - use pair-wise loss of preferred summary to unpreferred one
+               - Reinforcement Learning from Human Feedback
+                  - use separated transformer parameters for policy and value networks
+                  - BPE token generation as each step of episode, final reward model score as part of the RL Reward
+                  - KL distance between policy and init. supervised model also included in final Reward
+                  - policy network initialized with supervised model
+                  - value network initialized with reward model
+            - Results & Conclusions
+
          - Instruct-tuning: Finetuned language models are zero-shot learners, 2022, Google (OK)
    - Intelligence in GPT series
       - GPT-3: (davinci)
