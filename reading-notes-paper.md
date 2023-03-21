@@ -1,0 +1,231 @@
+- 2022/7/12 Fundemental Revisit
+   - Dropout
+      - Ideal Regularization: Bayesian gold standard $P(y|x; D) = \int P(y|x, w) P(w|D) dw$
+      - Approximation: geo-mean of predictions of exponential number of learned models with shared parameters
+   - VAE 
+      - Encoder & Decoder paradigm: $(e^*, d^*) = \argmin_{(e,d) \in E \times D} \epsilon(x, d(e(x)))$
+      - non regularized encoder space may leads to meaningless decoder output, if decode with sample in the encode space
+      - VAE: encode an input as a distribution over the latent space
+         - SAE Proc: input $X$ $\overrightarrow{encoding}$ $z=e(X)$ $\overrightarrow{decoding}$ ($d(z)$)
+         - VAE Proc: input $X$ $\overrightarrow{encoding}$ $p(z|x)$ $\overrightarrow{sampling}$ $z \sim p(z|x)$ $\overrightarrow{decoding}$ ($d(z)$)
+         - VAE Loss: Loss=$\|x-\hat{x}\| + KL[N(\mu_x, \sigma_x), N(0,1)]$
+      - regularization of latent space 
+         - continuity: near sample in latent space decode to near point in x-space
+         - completeness: any sample in latent space decode to meaningfull point in x-space
+      - In summary: ![VAE](./vae.png)
+      - VAE in recommendation (2022/7/13)
+         - VAE as a filtering tech
+         - nothing new
+         - not practical
+
+- 2022/7/18 MCMC & Variational Inference(VI)
+   - MCMC
+      - In brief:
+         - Reversible Markov Chain
+         - Stationary Distribution $\gamma(\cdot)$: 
+            - $ \int_\beta K(\alpha, \beta) \gamma(\beta) d\beta = \int_\beta K(\beta, \alpha) \gamma(\alpha) d\beta = \gamma(\alpha)$, $\alpha, \beta \in E$
+         - Sampling stage:
+            - **Burn in** to reach stationary distribution
+            - **Lag** from auto-correlation for 
+            independent samples
+            - In detail: $X_{B}, X_{B+L}, X_{B+2L}, \cdots$
+      - Gibbs-Sampling
+         - $X_n=\{X_{n,1}, X_{n,2}, \cdots, X_{n,D}\}$
+         - Sampling procedure
+            - $d \sim Uniform(\{1, 2, \cdots, D\})$
+            - $X_{n+1,j} = X_{n, j}$ for $j \neq d$
+            - $X_{n+1,j} \sim \pi_d (\cdot | x_{n,\neg d})$
+      - Metropolis-Hasting
+         - GS not trackable, define side transition $h(\cdot, \cdot)$
+         - Sampling procedure
+            - $x \sim h(X_n, \cdot)$ 
+            - with prob. $r = \min (1, \frac{g(x)h(x,X_n)}{g(X_n)h(X_n,x)})$, $X_{n+1} = x$; else $X_{n+1}$ = X_{n}
+            - Transition probability
+               - $K(\alpha, \beta) = r h(\alpha, \beta)$
+      - In summary: ![mcmc](./mcmc.png)
+   - Variational Inference(VI)
+      - In summary: ![vi](./vi.png)
+         - $KL(p,q) = E_{z \sim p}[p(z)] - E_{z \sim p}[q(z)]$ not sensitive to multiplicative const
+      - $\omega^* = \arg \min_{\omega \in \Omega} KL(f_{\omega}(z), P(z|x))$ = $\arg \min_{\omega}(E_{z \sim f_{\omega}(z)}(\log P(x|z)) - KL(f_{\omega}, p(z)))$
+      - Depict in: ![vi-opt](./vi-opt.png)
+- 2022/7/25: Transformer
+   - key modules:
+      - positional encoding
+      - attention
+         - self attention
+         - maskted attention
+         - cross attention
+      - layer-norm & residual
+      - element-wise FFN
+   - variants: 
+      - Sparse Transformer
+- 2022/8/1: Kwai Playtime estimation in KDD'2022
+   - 2 steps to remove duration bias
+      1. Splitting data based on duration to remove duration bias
+      1. Fitting watch time quantiles insteads of the original playtime
+   - model to fit the quantile on each bucket
+      1. shared embedding, individual MLP for each bucket
+      1. shared embedding, shared MLP for duration buckets, duration as input feature
+      1. shared embedding, shared MLP for duration buckets, duration as residual
+   - do-Calculus(TODO:)
+      - three rules
+- 2022/8/1: Kwai Persia Deep Learning framework for Recommendation
+   - imbalance between model computation intensity and model scale
+      - embedding layer: 10^7 larger scale than Neural Network(NN) layer
+      - NN layer: 10^7 more computation intensity than embedding layer
+   - modules of Persia
+      - Data Loader
+      - Embedding PS server(CPU node)
+         - LRU Cache
+         - Zero copy RPC
+         - Workload balance
+      - Embedding worker(CPU node)
+         - Buffer mechanism
+         - Zero copy RPC
+         - Lossless communication compression
+      - NN worker(GPU node)
+         - Buffer mechanism
+         - Bagua: AllReduce framework
+         - Zero copy RPC
+         - Lossless communication compression
+- 2022/8/5: Fundemental Revisit
+   - Inductive Representation Learning on Large Graphs(GraphSAGE, 2018)
+      - Inductive framework to generate node representation by SAmpling and aggreGat(E)ing(SAGE) featuures
+         - In regard to tranductive node representation, which depends on the whole graph
+      - Three steps to put elephant into refrigerator, for each search depth($K$ in all) and each node $v \in V$: 
+         - SAmpling neighbourhoods: fixed-size neighbours $N(v)$
+         - aggreGat(E)ing: $h_{N(v)}^k \leftarrow AGGREGATE_k(\{h_u^{k-1}, \forall u \in N(v)\})$
+            - Mean aggregator: $h_{N(v)}^k \leftarrow MEAN(\{h_u^{k-1}, \forall u \in N(v)\})$
+            - LSTM: apply LSTM on random permutation of neighbour node
+            - Max-pooling(element-wise) aggregator: $h_{N(v)}^k \leftarrow \max {\sigma(W_{pool}h_u^{k-1}, \forall u \in N(v))}$
+         - Updating: $h_v^k \leftarrow \sigma (W^k \cdot CONCAT(h_v^{k-1}, h_{N(v)}^k))$
+      - Loss function
+         - nearby node with high similarity, disparate nodes are highly distinct: 
+         - $J_{G}(z_u) = -\log (\sigma(z_u^T z_v^T)) - Q \cdot \mathbb{E}_{v_n \sim P_n(v)} \log (\sigma(-z_u^T Z_{v_n}^T))$
+      - Nuts and bolts
+         - $K=2$, $S_1 \times S_2 \leq 500$
+   - Pin-Episode1(2018): Graph Convolutional Neural Networks for Web-Scale Recommender Systems(PinSage, 2018)
+      - Take aways
+         - Efficient random work to structure the convolution
+         - A training strategy with harder and harder examples
+      - Key insights
+         - Scalabilities
+            - Convolution on the fly
+            - Producer-consumer minibatch construction(CPU -> GPU)
+            - Efficient MapReduce inference
+         - Training techniques
+            - Use short random walks to sample computation graph
+            - Importance sampling: Weight importance of neighbour node features by random-walk similarity measure(or biz defined similiarty)
+            - Curriculum training: feed more and more hard examples
+         - Model training in details
+            - Loss function: $J_{G}(z_q, z_i) = E_{n_k \sim P_n(q)} \max \{0, z_q^T z_{n_k} - z_q^T z_{i} + \Delta\}$
+            - Multi-GPU training with large mini-batch: 521 to 4096, sample divide and gradient aggregation
+            - Producer-consumer minibatch construction: 
+               - Global adjacency list and node feature matrix stores in CPU memory
+               - Construct sub-graph $G'=(V', E')$ for CONVOLVE with re-index technique from CPU memory
+               - Local adjacency list and feature matrix feed into GPU memory
+               - GPU update feature embedding by CONVOLVE algorithm
+            - Sampling hard negative in (large) minibatch
+               - 500 of global negative sample for all samples
+               - rank items in graph by personalized PageRank score w.r.t query item $q$, items rank in the middle (2000-5000) are randomly sampled as hard negatives
+               - curriculum training for $n$-epoch, add $n-1$ hard negative samples
+            - Inference by K round map-reduce from leaf to root nodes
+   - Pin-Episode2(2017): Pixie: A System for Recommending 3+ Billion Items to 200+ Million Users in Real-Time
+   - Pin-Episode3(2022): ItemSage: Learning Product Embeddings for Shopping Recommendations at Pinterest
+      - A representation for product in Pinterest, with compatibility to SearchSage and PinSage(Fixed)
+      - Method in details
+            - An Item(product) consists of : 
+               - 20 images represented by PinSage(fixed)
+               - 12 text features(title, description, merchant domain, product category, product type, brand, color, materials, etc.), 
+            - Transformer encoder based representation of product as a whole: 
+               - 20 images with PinSage embedding
+               - 12 text features: 
+                  - tokenized with unigram, bigram and character trigrams
+                  - embeded with hash-trick
+                  - sum-pooling for feature wise representation
+               - Image and text embedding transformed with linear mapping to align to 512 dim embedding
+               - Sequence of 32 embeddings with length 512 and a global [CLS] token input to self-attention module with 8 heads and a feed forward module with one hidden layer
+               - Embedding of [CLS] as the final representation, which goes through a two-layer MLP head to produce the 256 embedding of product
+            - Loss and training:
+               - Sample: Closeup and Search engagement logs, one pair for each query(image or text string mined from logs) and engaged product
+               - Loss: 
+                  - Softmax loss with other positive examples as negative, logQ correction applied
+                  - Plus softmax loss for the same amount of random negative examples, to balance the penalty to popular items, logQ correction applied as well
+            - Multi-task learning: 
+               - Tasks considered
+                  - Click
+                  - Save
+                  - Add to cart
+                  - Purchase
+               - Mixed as the positive examples
+   - Pin-Episode4(2020): PinnerSage: Multi-Modal User Embedding Framework for Recommendations at Pinterest(View history cluster)
+      - A retrieval/candidate generation system, represent user with multiple pins' embedding
+      - Method in details
+         - Daily job: 
+            - Cluster the user history of clicked and pinned pins by Wald(Lance-Williams algorithm), used fixed PinSage embedding for pins
+            - Select medoid pin of each cluter as representation: $emb(C) = P_m$, where $m = \argmin_{m \in C} \sum_{j \in C} \| P_m - P_j\|^2$
+            - Assign time-decayed importance to each cluster: $Importance(C, \lambda) = \sum_{i \in C} e^{-\lambda (\mathcal{T}_{now} - \mathcal{T}_i)}$
+         - Realtime Job: the same as daily job do, with history replaced with latest 20 pins
+      - Implementation tricks:
+         - ANN(Approximate Nearest Neighbour) by HNSW
+         - Filter low quality and similar pins
+         - Cache medoid pins to avoid repeated calls to ANN system
+   - Pin-Episode5(2019): Classification is a Strong Baseline for Deep Metric Learning
+   - Pin-Episode6(2019): Learning a Unified Embedding for Visual Search at Pinterest
+      - Overall
+         - Multi-task classification as the backbone paradiagm for unified representation lerning
+         - Proxy as class for each task, proxy-representation as weights for label prediction
+         - Unified representation for each item(Query, Pin Image, Camera photo) extracted from SE-ResNeXt101 and Binarized
+         - Prediction made by dot product of item embedding and proxy embedding, with no bias term
+         - Subsampled softmax as the loss for embedding learning
+      - Key tricks
+         - Subsampling of negative proxy for efficiency with minor loss
+         - Binarize at threshold zero embedding gain efficiency with neglectable loss
+   - Two-tower@Youtube: Sampling-Bias-Corrected Neural Modeling for Large Corpus Item Recommendations
+      - A retrieval/candidate generation system: Two tower for user and item representation
+      - Key to implementation
+         - Engagement weighted log-loss, with in-batch items as negative
+         - logQ correction to balance the over penalty to popular item: $s^c(x_i, x_j) = s(x_i, x_j)-p(x_j)$
+            - $P_B^C(y_i|x_i; \theta) = \frac{e^{s^c(x_i, x_j)}}{\sum_{j'} e^{s^c(x_i, x_{j'})}}$
+         - A streaming frequency estimation:
+            - frequency to average number of steps between two consecutive hits of an item $\delta$
+            - $B[h(y)] \rightarrow (1-\alpha) B[h(y)] + \alpha (t - $A[h(y)])$
+            - $B[h(y)]$: estimation of $\delta$ for item $y$; $A[h(y)]$: last step when $y$ is hit
+- 2022/9/2: KDD'22 Series
+   - Feature-aware Diversified Re-ranking with Disentangled Representations for Relevant Recommendation(Kwai)
+- 2022/9/13: GCF related topics
+   - Neural Graph Collaborative Filtering(SIGIR 19')
+      - Keypoints:
+         - Explicitly model the similarity of user and item embedding in embedding generation
+         - Explore high-order connectivity via multiple embedding propagation and concatation for user and item
+            - on the contrary, random-walk is another way to explore multi-hop connection
+         - Edge and node dropout for robustness
+   - LightGCN: Simplifying and Powering Graph Convolution Network for Recommendation(SIGIR 20')
+- 2022/9/23: 
+   - node2vec: Scalable Feature Learning for Networks (2016)
+      - Skip-gram in graph
+      - A BFS/DFS hybrid algorithm to generate sequence by Random Walk(RW)
+      - Expand neighbourhood from adjacency to RW result
+   - metapath2vec: Scalable Representation Learning for Heterogeneous Networks (2017)
+      - Designed for representation of heterogeneous networks
+      - Meta-path constrained RW(Random walk) to encode biz insights
+      - a plus version: negative sample limited to same type of node(context) 
+         - different conditional distribution for different type of node
+- 2022/10/17: Contrastive learning for recommendation topic: Self-supervised for representation learning
+   - Contrastive Learning for Recommender System (2021, Academic)
+      - Siamese network for user-user, BPR loss for user-items, combined
+      - Debiased contrastive loss by sub-sampling on negative samples
+   - SUPERVISED CONTRASTIVE LEARNING FOR RECOMMENDATION (2022, Academic)
+   - Self-Supervised Learning for Recommender Systems: A Survey (2022, Academic)
+      - Organised in an uniform formulation, but too much
+   - [Debiased Contrastive Learning](https://proceedings.neurips.cc/paper/2020/file/63c3ddcc7b23daa1e42dc41f9a44a873-Paper.pdf) (2020 NIPS)
+
+- 2022/10/26: Debias & Big model in recommendation (Two survey works)
+   - Bias and Debias in Recommender System: A Survey and Future Directions (2021)
+   - Knowledge Transfer via Pre-training for Recommendation: A Review and Prospect (2020)
+
+- 2020/11/2: RecSys' 2022
+   - Mitigating Targeting Bias in Content Recommendation with Causal Bandits (Amazon)
+   - Off-Policy Actor-critic for Recommender Systems (Youtube)
+   - Psychology-informed Recommender Systems (Interests)
+   - Rethinking Personalized Ranking at Pinterest: An End-to-End Approach (Pinterest)

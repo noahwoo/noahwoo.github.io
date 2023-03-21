@@ -33,6 +33,11 @@ date: 2/8/2021
       - [Two-way fixed effects estimators with heterogeneous treatment effects, 2018](https://arxiv.org/abs/1803.08807)
       - [Double/Debiased Machine Learning for Treatment and Structural Parameters, 2016](https://economics.mit.edu/files/12538)
       - [DoubleML](https://docs.doubleml.org/stable/index.html)
+   - Structural Time Series model:
+      - [Structural Time Series(GAM), 2020](https://structural-time-series.fastforwardlabs.com/)
+      - [Causal Impact](https://google.github.io/CausalImpact/CausalImpact.html)
+      - [Inferring causal impact using Bayesian structural time-series models, 2015](https://research.google/pubs/pub41854/)
+      - [State Space Model and Kalman Filter for Time-Series Prediction, 2019](https://towardsdatascience.com/state-space-model-and-kalman-filter-for-time-series-prediction-basic-structural-dynamic-linear-2421d7b49fa6)
 - Multiple cause inference
    - [The Blessings of Multiple Causes, 2019](https://arxiv.org/abs/1805.06826)
    - [On Multi-Cause Causal Inference with Unobserved Confounding: Counterexamples, Impossibility, and Alternatives, 2019](https://arxiv.org/abs/1902.10286)
@@ -66,7 +71,7 @@ date: 2/8/2021
 ## Poineers
 - Econometrics
    - [Victor Chernozhukov, MIT](http://www.mit.edu/~vchern/)
-   - [Susan Athey, Stanford](https://www.gsb.stanford.edu/faculty-research/faculty/susan-athey)
+   - [Susan Athey, Stanford](https://athey.people.stanford.edu/)
    - [Guido W. Imbens, Stanford](https://www.gsb.stanford.edu/faculty-research/faculty/guido-w-imbens)
    - [Alberto Abadie, MIT](https://economics.mit.edu/faculty/abadie)
 

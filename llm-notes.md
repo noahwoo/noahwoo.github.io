@@ -1,0 +1,205 @@
+---
+title: Large Language Model on The Way
+author: MEG-Feed
+date: 3/2/2023
+---
+
+# 核心技术方向
+- Pretrained Models
+   - Left to right(GLM)
+      - OpenAI: GPT/GPT-2/GPT-3
+   - Masked LM
+      - Google: BERT
+      - Google: RoBERTa
+   - Prefix LM
+      - MSRA: UniLM1/UniLM2
+   - Encoder/decoder
+      - Google: T5
+      - MSRA: MASS
+      - Facebook: BART
+- Prompt Engineering
+   - Shape: 
+      - Cloze: LAMA/TemplateNER
+      - Prefix: Prefix-Tuning/Prompt-Tuning
+   - Human Effort:
+      - Hand crafted: LAMA/GPT3
+      - Automated: 
+         - Discrete: AdvTrigger/AutoPrompt
+         - Continuous: Prefix-Tuning/Prompt-Tuning
+- Answer Engineering
+
+# Papers & posts in details
+- Transformers
+   - Thinking Like Transformers, 2021
+- OpenAI GPT series: 
+   - GPT-1: Improving Language Understanding by Generative Pre-Training, 2018, OpenAI (OK)
+   - GPT-2: Language Models are Unsupervised Multitask Learners, 2019, OpenAI (OK)
+   - GPT-3: Language Models are Few-Shot Learners, 2020, OpenAI (OK)
+   - InstructGPT: Training language models to follow instructions with human feedback, 2022, OpenAI (OK)
+      - Reference:
+         - Fine-Tuning Language Models from Human Preferences, 2020, OpenAI 
+            - Date: 3/2/2023
+               - Tasks: Stylistic continuation(in sentiment or genre)/Summarization
+               - Optimize over (x, {y_i}, b), LogLikelihood
+               - Logits consist of reward from LM r(x,y) and KL dist. between new and old model
+               - experiments:
+                  - summarization: pretrain 774M GPT-2 LM, then RL fine-tune
+                  - stylistic continuation: train with WebText from scrath, SFT on BookCorpus, then RL fine-tune
+         - Instruct-tuning: Finetuned language models are zero-shot learners, 2022, Google (OK)
+   - Intelligence in GPT series
+      - GPT-3: (davinci)
+         - generation ability
+         - world knowledge
+         - in-context learning
+      - Instruct tuning (davinci-instruct-beta)
+         - instruction follow and unseen task generalization
+      - Add code training (code-davinci-002)
+         - code understanding
+         - complex reasoning/CoT(possibly)
+         - best of all: text doc and code combined
+      - Supervised tuning (text-davinci-002) + RLFH (text-davinci-003)
+         - ability to alignment with human
+         - reject unknown/illegal/unenthical question
+      
+- Google Research/Brain/DeepMind: 
+   - BERT series: 
+      - BERT: Pre-training of deep bidirectional transformers for language understanding, 2019, Google (OK)
+      - RoBERTa: A Robustly Optimized BERT Pretraining Approach, 2019, Facebook (OK)
+   - LaMDA series: (Language model for Dialog Application)
+      - Towards a Human-like Open-Domain Chatbot, 2020, Google
+      - Finetuned language models are zero-shot learners, 2022, Google (LaMDA-PT -> FLAN) (OK)
+         - instruct tuning for multi-task generalization, with 60+ NLP tasks
+      - Scaling Instruction-Finetuned Language Models, 2022, Google (Flan series: T5/PaLM) (OK)
+         - scaling instruction tasks to 1.8k 
+         - scaling model size from 80M to 540B
+         - fine-tuning on CoT data
+      - The Flan Collection: Designing Data and Methods for Effective Instruction Tuning, 2023, Google
+   - GLaM series: (More Efficient In-Context Learning, sparse language model(FFN -> MoE))
+      - Efficient Scaling of Language Models with Mixture-of-Experts, 2022, Google
+   - PaLM series: (540-Billion parameters, attention and ffn computed in parallel)
+      - PaLM: Scaling Language Modeling with Pathways, 2022, Google, Jeff Dean
+   - Chinchilla: (optimal model size and #tokens for training a transformer language model under a given compute budget)
+      - Training Compute-Optimal Large Language Models, 2022, (Google/DeepMind)
+   - Gopher: (an analysis of Transformer-based language model performance across a wide range of model scale)
+      - Scaling Language Models: Methods, Analysis & Insights from Training Gopher, 2022, (Google/DeepMind)
+   - T5 series: (training all kinds of task in unified text-to-text way)
+      - Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer, 2020, Google (T5)
+   
+- RLFH series:
+   - Illustrating Reinforcement Learning from Human Feedback (RLHF), 2022, Hugging Face Blog
+      - https://github.com/huggingface/blog/blob/main/rlhf.md
+
+- Prompt(hard/soft) engineering
+   - Survey:
+      - Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in Natural Language Processing, 2021, CMU (OK)
+   - Parameter efficient tuning
+      - Prefix Tuning: Optimizing Continuous Prompts for Generation, 2021, Stanford (OK)
+      - Prompt Tuning: The Power of Scale for Parameter-Efficient Prompt Tuning, 2021, Google (OK)
+      - P-tuning/P-tuning V2: Prompt Tuning Can Be Comparable to Fine-tuning Universally Across Scales and Tasks, 2021, Tsinghua (OK)
+      - Unified View: Towards a unified view of parameter-efficient transfer learning, 2022, CMU (OK)
+   - Applications: 
+      - Prompt tuning GPT-2 language model for parameter-efficient domain adaptation of ASR systems, 2022, Amazon (OK)
+
+- In context learning
+   - Survey
+      - A Survey on In-context Learning, 2023, PKU (OK)
+         - 3/3/2023: read through
+   - Explanations:
+      - Rethinking the Role of Demonstrations: What Makes In-Context LearningWork?, 2022, Facebook
+      - What Can Transformers Learn In-Context? A Case Study of Simple Function Classes, 2023, Stanford
+      - Why Can GPT Learn In-Context? Language Models Secretly Perform Gradient Descent as Meta-Optimizers, 2022, Tsinghua
+
+- CoT/Reasons: 
+   - Chain of thought prompting elicits reasoning in large language models, 2022, Google (OK)
+      - Prompt with chain of thought helps improve perf. on arithmetric, commonsense and symbolic reasoning
+      - Ablation study shows: 
+         - equation only prompting not work
+         - expressing intermediate steps via natual language helps
+         - sequential reasoning embodied in chain of thought is useful for reasons beyond just activating knowledge
+   - Self-consistency improves chain of thought reasoning in language models, 2023, Google
+   - Reasoning with Language Model Prompting: A Survey, 2022, Alibaba
+   - Towards Reasoning in Large Language Models: A Survey, 2022, UIUC
+   - ReAct: Synergizing reasoning and action in language models, 2022, Google (OK)
+   - Star: Bootstrapping reasoning with reasoning, 2022, Google
+   - Least-to-most prompting enables complex reasoning in large language models, 2022, Google
+   - Multimodal chain-ofthought reasoning in language models, 2023, Amazon(Alex Smola)
+
+- World knowledge and augumented language model
+   - REALM: Retrieval-Augmented Language Model Pre-Training, 2020, Google (OK)
+      - Neural retrieval augumented LM generator: P(y|x) = \sum_z P(z|x) P(y|x,z)
+      - P(z|x) a transformer encoded retrieval with vector similarity as the ranking criteria
+      - Marginalize on z over Top-K approximation to reduce the computation burden
+   - In-Context Retrieval-Augmented Language Models, 2020, AI21 Labs (OK)
+   - RAG: Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks, 2021, Facebook (OK)
+      - Similar idea as REALM
+      - Seq2seq language model generator: BART
+      - Neural retrieval: dense passage retrieval(DPR) for Wikipedia documents, with two transformer encoders for query and doc
+      - Document encoder fixed to pretrained bi-encoder DPR model on TriviaQA and Natural Questions
+      - Learned retrieval ablation tested, show performance gain
+      - Hotspot index swap for knowledge update works
+   - MRKL(miracle): Systems A modular, neuro-symbolic architecture that combines large language models, external knowledge sources and discrete reasoning, 2022, AI21 (OK)
+      - Call for neural and symbolic combined approach, to overcome the limitation of neural language model
+      - Arithmetic as a test case, focus on the neural router to extract operands and operators from arithmetical question
+      - Templates are used to generate <prompt, completion> pairs for fine tuning of neural router
+      - Prompt tuning employed for soft-prompt in experiments
+   - RETRO: Improving language models by retrieving from trillions of tokens, 2022, Google/DeepMind
+   - WebGPT: Browser-assisted question-answering with human feedback, 2022, OpenAI
+      - In brief
+         - fine-tuned on question-human demonstration pairs
+         - optimization via RLHF
+      - Method on details, four aspects
+         1. behavior cloneing(SFT/Bahavior Cloning)
+         2. reward modeling(RM)
+         3. reinforcement learning(RLFH)
+         4. reject sampling (an alternative to #3, in exchange of offline training with online inference)
+      - Results
+         - ELI5 dataset: 56% preferred over people, 69% preferred over top-voted by ELI5 dataset
+         - TruthfulQA dataset: truth 75% of the time, truth and informative 54% of the time
+      - Ref. 
+         - Learning to summarize from human feedback, 2020, OpenAI
+   - DSP: Composing retrieval and language models for knowledge-intensive NLP, 2023, Stanford 
+   - Knowledge Retrieval Architecture for LLM’s (OK)
+      - https://mattboegner.com/knowledge-retrieval-architecture-for-llms/
+   - Augmented Language Models: a Survey, 2023, Facebook (In progress)
+      - Key elements (Langchain abstract as Agent & Tools)
+         - Reasoning: given more computation steps to the model before yielding the answer to a prompt
+         - Tool: getting each step right
+         - Action: call tool and observe the result
+      - Augument LM's reasoning capability
+      - Allow LM to interact with exteral tools and act
+      - Reasoning and tools usage implemented by
+         - Supervision
+            - Few shot prompting
+            - Gradident-based learning(instruct tuning mostly used)
+               - Blender Bot
+               - WebGPT
+            - Prompt pre-training: mix pre-training data with labeled demo. of reasons
+               - Galactica
+            - Bootstrapping: prompt LM to reason or act in few shot setup with final prediction, examples lead to incorrect prediction removed, initial LM fine tuned on coorect examples 
+               - STaR: Self-taught reasoner bootstrapping reasoning with reasoning, 2022
+               - Talm: Tool augmented language models, 2022
+         - Reinforcement Learning
+            - Human preference data(ranking/like/dislike): from SFT to RL
+            - Most RL work teach LM to act rather than reason(besides STaR)
+            - Hardcode reward:
+               - Conqrr: Conversational query rewriting for retrieval with reinforcement learning, 2022
+               - Rainier: Reinforced knowledge introspector for commonsense question answering, 2022
+               - Webshop: Towards scalable real-world web interaction with grounded language agents, 2022
+               - Regen: Reinforcement learning for text and knowledge base generation using pretrained language models, 2021
+            - Human feedback(RLFH): Alignment:
+               - Tamer: Training an agent manually via evaluative reinforcement, 2008
+               - Deep tamer: Interactive agent shaping in high-dimensional state spaces, 2018
+               - Is reinforcement learning (not) for natural language processing?: Benchmarks, baselines, and building blocks for natural language policy optimization, 2022
+               - InstructGPT
+               - WebGPT 
+               - GopherCite: Teaching language models to support answers with verified quotes, 2022
+               - diff. in external module vs. external tools(web browser) ??
+               - Toolformer: Language models can teach themselves to use tools, 2023
+      - Discussion
+         - Looped transformers as programmable computers, 2023
+         - A path towards autonomous machine intelligence, 2022, Lecun
+         - Language models (mostly) know what they know, 2022
+         - React: Synergizing reasoning and acting in language models, 2022
+
+- Alignments
+   - In conversation with Artificial Intelligence: aligning language models with human values, 2022, Google/DeepMind
