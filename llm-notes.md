@@ -1,6 +1,6 @@
 ---
-title: Large Language Model on The Way
-author: MEG-Feed
+title: Large Language Models on The Way
+author: Jianmin
 date: 3/2/2023
 ---
 
@@ -28,7 +28,7 @@ date: 3/2/2023
          - Continuous: Prefix-Tuning/Prompt-Tuning
 - Answer Engineering
 
-# Papers & posts in details
+# Resources on track
 - Transformers
    - Thinking Like Transformers, 2021
    - Transformers: State-of-the-Art Natural Language Processing, 2020, Huggingface
@@ -102,7 +102,7 @@ date: 3/2/2023
          - best of all: text doc and code combined
       - Supervised tuning (text-davinci-002) + RLFH (text-davinci-003)
          - ability to alignment with human
-         - reject unknown/illegal/unenthical question
+         - reject unknown/illegal/unethical question
       
 - Google Research/Brain/DeepMind: 
    - BERT series: 
@@ -140,6 +140,23 @@ date: 3/2/2023
       - Prompt Tuning: The Power of Scale for Parameter-Efficient Prompt Tuning, 2021, Google (OK)
       - P-tuning/P-tuning V2: Prompt Tuning Can Be Comparable to Fine-tuning Universally Across Scales and Tasks, 2021, Tsinghua (OK)
       - Unified View: Towards a unified view of parameter-efficient transfer learning, 2022, CMU (OK)
+         - One-word: Unify Adpater/LoRA/Prefix-tuning into the modification to specific hidden states(heads) in pretrained model
+         - Aspects of modifications
+            - target: head-attention(Prefix Tuning), attention(Adapter/LoRA), ffn(Adapter), key/value tranform matrix(LoRA)
+            - composition: $h \leftarrow h + s \Delta h$ or $h \leftarrow (1-\lambda(x)) h + \lambda(x) \Delta h$ (PrefixTuning)
+            - modifier $\Delta h$: 
+               - low rank bottleneck: $f(v W_1)W_2, W_1 \in R^{d \times l}, W_2 \in R^{l \times (d|d_h)}$
+               - $v$: PLM layer input $x$(Prefix Tuning/LoRA) or (head-)attention $h$(Adapter) 
+               - $f$: Identity mapping(LoRA), ReLU activation function(Adapter), Softmax function(Prefix Tuning)
+               - parallel(PrefixTuning/LoRA) or sequential(Adapter)
+               - scaling or not: yes(LoRA), no(Prefix Tuning/Adapter)
+         - Results
+            - Claimed comparable performance to fine-tuning not generalize well to other benchmark
+            - parallel adapter beats sequential adapter
+            - ffn modification utilize the added parameters more effectively than (head-)attention, except for the case with less than 0.1% parameters added
+            - scaling composition function better than vanilla additive one
+            - Mix-And-Match adapter utilizing the good of Prefix-tuning and Adapter works better
+
    - Applications: 
       - Prompt tuning GPT-2 language model for parameter-efficient domain adaptation of ASR systems, 2022, Amazon (OK)
 

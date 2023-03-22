@@ -1,6 +1,6 @@
 ---
 title: Review of causal inference in user growth 
-author: MEG-UG
+author: Jianmin
 date: 2/8/2021
 ---
 
