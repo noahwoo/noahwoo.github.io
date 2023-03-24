@@ -178,10 +178,60 @@ date: 3/2/2023
          - sequential reasoning embodied in chain of thought is useful for reasons beyond just activating knowledge
    - Self-consistency improves chain of thought reasoning in language models, 2023, Google
    - Reasoning with Language Model Prompting: A Survey, 2022, Alibaba
+      - One word: survey of cutting-edge research on reasoning with language model prompting
+      - Methods
+         - Strategy Enhenced Reasoning: design better reasoning strategy, like CoT/Multi-stage CoT
+            - Prompt Enginneering: 
+               - Single stage: 
+                  - CoT works; more Chain steps, better results
+                  - Exemplars' quality, diversity and order matters
+                  - Even zero-shot works by prompting with 'Let's think step by step'
+               - Multi stage: decompose into subtasks, remedy compositionality gap
+                  - Reasoning step by step in sequential, concate subtask question to the end of prompt
+                  - Split and merge tasks with different prompts
+            - Process optimization: Natural language rationales
+               - Reasoning consistency and continuity matters
+               - Self Optimization
+               - Iterative Optimization
+                  - StAR: a small set of exemplars to generate reasoning steps, ones lead to correct answer used for fine-tuning
+                  - generates multiple reasoning processes, the most consistent ones used for fine-tuning
+                     - Selfconsistency improves chain of thought reasoning in language models, 2022, Google
+               - Ensemble Optimizization
+                  - not all reasoning steps should undertake the incorrectness of answers
+                  - sampling multiple reasoning processes, generate most consistant answer by vote
+            - External engine: 
+               - 2 goals in LLM: semantic understanding and complex reasoning, first one can leverage external system
+               - examples of external engine(no world knowledge, just rules)
+                  - Physical simulator: 
+                  - Code interpreters: PAL/POT
+         - Knowledge Enhenced Reasoning
+            - Implict knowledge: elicit knowledge from LM by few-shot prompting, then prompot downstream LM
+            - Explict knowledge: retrieval augumented LM
+               - Learning to retrieve prompts for in-context learning, 2022
+               - Rainier: Reinforced knowledge introspector for commonsense question answering, 2022
+      - Tasks
+         - Arithmetic/Commonsense/Symbolic/Logical/Multimodel reasoning
+         - Visualcomet: Reasoning about the dynamic context of a still image, 2020 (GPT-4 image reasoning demo)
    - Towards Reasoning in Large Language Models: A Survey, 2022, UIUC
    - ReAct: Synergizing reasoning and action in language models, 2022, Google (OK)
    - Star: Bootstrapping reasoning with reasoning, 2022, Google
    - Least-to-most prompting enables complex reasoning in large language models, 2022, Google
+      - Oneword: Solve problem harder than the demonstration examples in CoT prompt
+      - Methods: least to most prompting, using a progressive sequence prompts to help language model learn a new skill
+         - In brief: based on few-shot prompting
+            - reduce the complex problem in many sub-problems by querying LLM
+            - each sub-problem solved sequentially by querying LLM, with answers from the previous sub-problem as facilitating prompts
+         - In details
+            - Stage 1: reduce to subproblems: prompt LM with examples of how to reduce the complex problem into subproblems, follow by a specific problem to reduce
+            - Stage 2: solve subproblems sequentially, with complex problem appended as the last one
+               - prompt LM with examples of how the first subproblem solved, followed by the first subproblem
+               - take the answer from LM, append it to the previous prompts, followed by the next subproblem
+               - continue util reach the last subproblem, i.e., the complex problem, return the answer then
+         - Experiments: Output zero-shot and CoT in all datasets
+            - Symbolic manipulations: last-letter-concatenation
+            - Compositional generalization: SCAN
+            - Math reasoning: DROP & GSM8K
+
    - Multimodal chain-ofthought reasoning in language models, 2023, Amazon(Alex Smola)
 
 - World knowledge and augumented language model
