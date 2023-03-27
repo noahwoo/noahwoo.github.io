@@ -166,6 +166,29 @@ date: 3/2/2023
          - 3/3/2023: read through
    - Explanations:
       - Rethinking the Role of Demonstrations: What Makes In-Context LearningWork?, 2022, Facebook
+      - An Explanation of In-context Learning as Implicit Bayesian Inference, 2022, Stanford
+      - https://ai.stanford.edu/blog/understanding-incontext/, 2022, Stanford
+         - One word: 
+            - In context learning as a Bayesian inference of the prompt concept that every example in the prompt shares: $z$ in $P(z|p)$
+         - Methods
+            - Pretraining distribution: assume LLM fits the pretraining distribution exactly
+            - Prompt distribution: In context prompt examples are drawn from the same prompt concept
+            - Bayesian inference for in context learning formally:
+               - $P(o|p) = \int_{z} P(o|p,z) P(z|p) dz$, $p$ for prompts, $z$ for latent concept, $o$ output of LLM
+               - $P(z|p)$ concentrates on the prompt concept with more examples in the prompt 
+               - Noise and signal
+                  - Training prompt examples privide signal: Strong enough to overwrite the noise
+                  - Transition between examples in low prob.: unnatural text, different from the pretraining distribution
+                  - In-context learning robust to noise
+            - Empirical evidence
+               - Forming the prompt with the ground truth output is not required to achieve good in-context learning performance
+               - The underlying input distribution that examples are drawn matters
+               - The set of outputs in the task and input-output format matter
+               - One more evidence: In-context learning performance is highly correlated with term frequencies during pretraining
+            - Avenues for extensions
+               - Input-output ground truth mapping matters for synthetic tasks
+               - Instruction as improving Bayesian inference by providing explicit observations of the latent prompt concept
+               - Preference of pretraining data for eliciting in-context learning
       - What Can Transformers Learn In-Context? A Case Study of Simple Function Classes, 2023, Stanford
       - Why Can GPT Learn In-Context? Language Models Secretly Perform Gradient Descent as Meta-Optimizers, 2022, Tsinghua
 
@@ -177,6 +200,7 @@ date: 3/2/2023
          - expressing intermediate steps via natual language helps
          - sequential reasoning embodied in chain of thought is useful for reasons beyond just activating knowledge
    - Self-consistency improves chain of thought reasoning in language models, 2023, Google
+   - Show your work: Scratchpads for intermediate computation with language models, 2021, Google Brain
    - Reasoning with Language Model Prompting: A Survey, 2022, Alibaba
       - One word: survey of cutting-edge research on reasoning with language model prompting
       - Methods
@@ -214,7 +238,43 @@ date: 3/2/2023
          - Visualcomet: Reasoning about the dynamic context of a still image, 2020 (GPT-4 image reasoning demo)
    - Towards Reasoning in Large Language Models: A Survey, 2022, UIUC
    - ReAct: Synergizing reasoning and action in language models, 2022, Google (OK)
-   - Star: Bootstrapping reasoning with reasoning, 2022, Google
+   - StAR: Bootstrapping reasoning with reasoning, 2022, Google
+      - One word: iteratively leverage a small number of rationale examples and a large dataset without rationales, to bootstrap the ability to perform more complex reasoning
+      - Methods:
+         - In brief:
+            1. prompt with few-shot rationale examples, answer questions
+            2. if answer wrong, generate rationale with correct answer (Rationalization)
+            3. fine-tuning on <P, rationale, C> with rationale leading to or rationalized with correct answer from step 1 and step 2
+            4. repeat from step 1 (hence the 'bootstrap')
+         - In details: 
+            - almost the same as in brief
+            - a view in RL: $J(M,X,Y) = \sum_i \mathcal{E}_{\hat{r_i}, \hat{y_i} \sim P_M(.|x_i)} \mathcal{1}(y_i=\hat{y}_i)$
+            - Rationalization implemented by mark the correct answer with '(CORRECT)' in prompt
+         - Experiments:
+            - Arithmetic: n-digits sum with scratchpad
+            - CommonsenseQA: 12k question with five choices
+            - GSM8K: grade-school-level word problem
+   - Self-ask: Measuring and narrowing the compositionality gap in language models, 2022, MetaAI
+      - One word: measure and solve the problem of compositional gap: the fraction of incorrectly answered questions with correct sub-problems answers by model
+      - Methods: CoT and self-ask works, self-ask perform better with the help of search engine
+         - In breif: Similar to least-to-most, prompt with examples
+            - started with 'Are follow up questions needed here: Yes/No'
+            - followed with Intermediate Question and Answer from LM or Search Engine
+            - repeat until all the follow-up question answered
+            - 'So the final answer is:' followed up with final answer
+         - Details:
+            - measure the compositionality gap:
+               - a model can compose facts at a much higher rate when it can recall these facts more confidently
+            - CoT & Self-ask
+               - CoT and self-ask let the model apply more computation to harder problems by demonstrating the reasoning chain
+            - Employ search engine for realtime world knowledge
+               - answer the follow-up questions by search engine(feature snippets or snippets from top ranked result)
+      - Experiments & datasets
+         - Compositional Celebrities dataset
+         - 2WikiMultiHopQA
+         - Bamboogle: a dataset of 125 questions
+            - reading random Wikipedia articles and writing a 2-hop question about them
+            - fitler the questions that can be answered by search engine correctly
    - Least-to-most prompting enables complex reasoning in large language models, 2022, Google
       - Oneword: Solve problem harder than the demonstration examples in CoT prompt
       - Methods: least to most prompting, using a progressive sequence prompts to help language model learn a new skill
