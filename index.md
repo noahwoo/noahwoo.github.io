@@ -5,5 +5,6 @@ This tech blog records the learning notes on topics including Machine/Deep Learn
 Recent top updated note: 
 - [LLM on the way](https://github.com/noahwoo/noahwoo.github.io/blob/master/llm-notes.md)
 
-Notes
-
+History notes
+- [Causal Inference in brief](https://github.com/noahwoo/noahwoo.github.io/blob/master/causal_inference_ug.md)
+- [Misc. on Deep Learning/Recommendation Algorithms/Statistics](https://github.com/noahwoo/noahwoo.github.io/blob/master/reading-notes-paper.md)
