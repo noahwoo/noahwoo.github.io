@@ -102,7 +102,8 @@ date: 3/2/2023
       - Supervised tuning (text-davinci-002) + RLFH (text-davinci-003)
          - ability to alignment with human
          - reject unknown/illegal/unethical question
-      
+   - ChatGPT Plugins
+      - An end-to-end demo: https://techcommunity.microsoft.com/t5/fasttrack-for-azure/how-chatgpt-plugins-could-work/ba-p/3761483
 - Google Research/Brain/DeepMind: 
    - BERT series: 
       - **BERT: Pre-training of deep bidirectional transformers for language understanding, 2019, Google** (OK)
@@ -129,11 +130,12 @@ date: 3/2/2023
    
 - RLFH series:
    - **Illustrating Reinforcement Learning from Human Feedback (RLHF), 2022, Hugging Face Blog**
-      - https://github.com/huggingface/blog/blob/main/rlhf.md
+      - [Github Link](https://github.com/huggingface/blog/blob/main/rlhf.md)
 
 - Prompt(hard/soft) engineering
    - Survey:
       - **Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in Natural Language Processing, 2021, CMU** (OK)
+      - **[Prompt Engineering](https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/), 2023, OpenAI**
    - Parameter efficient tuning
       - **Prefix Tuning: Optimizing Continuous Prompts for Generation, 2021, Stanford** (OK)
       - **Prompt Tuning: The Power of Scale for Parameter-Efficient Prompt Tuning, 2021, Google** (OK)
@@ -166,7 +168,7 @@ date: 3/2/2023
    - Explanations:
       - **Rethinking the Role of Demonstrations: What Makes In-Context LearningWork?, 2022, Facebook**
       - **An Explanation of In-context Learning as Implicit Bayesian Inference, 2022, Stanford**
-      - **https://ai.stanford.edu/blog/understanding-incontext/, 2022, Stanford**
+      - **[How does in-context learning work? A framework for understanding the differences from traditional supervised learning](https://ai.stanford.edu/blog/understanding-incontext/), 2022, Stanford**
          - One word: 
             - In context learning as a Bayesian inference of the prompt concept that every example in the prompt shares: $z$ in $P(z|p)$
          - Methods
@@ -237,6 +239,13 @@ date: 3/2/2023
          - Visualcomet: Reasoning about the dynamic context of a still image, 2020 (GPT-4 image reasoning demo)
    - **Towards Reasoning in Large Language Models: A Survey, 2022, UIUC**
    - **ReAct: Synergizing reasoning and action in language models, 2022, Google** (OK)
+   - **Show Your Work: Scratchpads for Intermediate Computation with Language Models, 2021, Google Brain**
+      - One word: fine-tune Transformers to perform multi-step computations(long digits addition/program exec.) with intermediate computation steps as prompt written into a “scratchpad”
+      - Conclusions: 
+         - encode long digits addition process step by step (add&carry) as text and do supervised fine-tune improve the performance
+         - fine-tuned model generalizes to polynomial evaluation problem
+         - emit full program traces line by line annotated with local variables improve the performance of computer program execution prediction
+      - 
    - **StAR: Bootstrapping reasoning with reasoning, 2022, Google**
       - One word: iteratively leverage a small number of rationale examples and a large dataset without rationales, to bootstrap the ability to perform more complex reasoning
       - Methods:
@@ -327,7 +336,7 @@ date: 3/2/2023
          - Learning to summarize from human feedback, 2020, OpenAI
    - **DSP: Composing retrieval and language models for knowledge-intensive NLP, 2023, Stanford**
    - **Knowledge Retrieval Architecture for LLM’s** (OK)
-      - https://mattboegner.com/knowledge-retrieval-architecture-for-llms/
+      - [Web Link](https://mattboegner.com/knowledge-retrieval-architecture-for-llms/)
    - **Augmented Language Models: a Survey, 2023, Facebook** (OK)
       - Key elements (Langchain abstract as Agent & Tools)
          - Reasoning: given more computation steps to the model before yielding the answer to a prompt
