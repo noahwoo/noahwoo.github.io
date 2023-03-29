@@ -54,8 +54,8 @@ date: 3/2/2023
          - **Fine-Tuning Language Models from Human Preferences, 2020, OpenAI**
             - Date: 3/2/2023
             - Tasks: Stylistic continuation(in sentiment or genre) and Summarization
-            - Optimize over (x, {y_i}, b), LogLikelihood
-            - Logits consist of reward from LM r(x,y) and KL dist. between new and old model
+            - Optimize over $(x, {y_i}, b)$, LogLikelihood
+            - Logits consist of reward from LM $r(x,y)$ and KL dist. between new and old model
             - experiments:
                - summarization: pretrain 774M GPT-2 LM, then RL fine-tune
                - stylistic continuation: train with WebText from scrath, SFT on BookCorpus, then RL fine-tune
@@ -103,7 +103,7 @@ date: 3/2/2023
          - ability to alignment with human
          - reject unknown/illegal/unethical question
    - ChatGPT Plugins
-      - An end-to-end demo: https://techcommunity.microsoft.com/t5/fasttrack-for-azure/how-chatgpt-plugins-could-work/ba-p/3761483
+      - [An end-to-end 3'rd demo](https://techcommunity.microsoft.com/t5/fasttrack-for-azure/how-chatgpt-plugins-could-work/ba-p/3761483)
 - Google Research/Brain/DeepMind: 
    - BERT series: 
       - **BERT: Pre-training of deep bidirectional transformers for language understanding, 2019, Google** (OK)
@@ -242,10 +242,17 @@ date: 3/2/2023
    - **Show Your Work: Scratchpads for Intermediate Computation with Language Models, 2021, Google Brain**
       - One word: fine-tune Transformers to perform multi-step computations(long digits addition/program exec.) with intermediate computation steps as prompt written into a “scratchpad”
       - Conclusions: 
-         - encode long digits addition process step by step (add&carry) as text and do supervised fine-tune improve the performance
-         - fine-tuned model generalizes to polynomial evaluation problem
-         - emit full program traces line by line annotated with local variables improve the performance of computer program execution prediction
-      - 
+         - encoding long digits addition process step by step (add&carry) as text and doing supervised fine-tuning improve the performance of long digits addition tasks
+         - encoding polynomial evaluation process step by step (item by item) as text and fine-tuning improve the performance of polynomial evaluation tasks
+         - emitting full program traces line by line annotated with local variables improve the performance of computer program execution prediction
+      - Method & Experiments
+         - Use decoder-only transformer models, pretrained model ranging in size from 2M to 137B parameters
+         - Addition task
+            - Train with 1-8 digits addition task ,test with 1-8 in-distribution and 9-10 out-of-distribution tasks
+            - Fine-tuning with 100K examples for 5K steps, batch size 32
+            - Test with 10K in-distribution and 1K out-of-distribution examples
+            - Scratchpad fine-tuning models perform well with the scaling of model size
+
    - **StAR: Bootstrapping reasoning with reasoning, 2022, Google**
       - One word: iteratively leverage a small number of rationale examples and a large dataset without rationales, to bootstrap the ability to perform more complex reasoning
       - Methods:
