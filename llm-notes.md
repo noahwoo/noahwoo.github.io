@@ -157,7 +157,8 @@ date: 3/2/2023
             - ffn modification utilize the added parameters more effectively than (head-)attention, except for the case with less than 0.1% parameters added
             - scaling composition function better than vanilla additive one
             - Mix-And-Match adapter utilizing the good of Prefix-tuning and Adapter works better
-
+   - Automation:
+      - **Large Language Models Are Human-Level Prompt Engineers**, 2023
    - Applications: 
       - **Prompt tuning GPT-2 language model for parameter-efficient domain adaptation of ASR systems, 2022, Amazon** (OK)
 
@@ -201,7 +202,6 @@ date: 3/2/2023
          - expressing intermediate steps via natual language helps
          - sequential reasoning embodied in chain of thought is useful for reasons beyond just activating knowledge
    - **Self-consistency improves chain of thought reasoning in language models, 2023, Google**
-   - **Show your work: Scratchpads for intermediate computation with language models, 2021, Google Brain**
    - **Reasoning with Language Model Prompting: A Survey, 2022, Alibaba**
       - One word: survey of cutting-edge research on reasoning with language model prompting
       - Methods
@@ -307,6 +307,8 @@ date: 3/2/2023
             - Compositional generalization: SCAN
             - Math reasoning: DROP & GSM8K
    - **Multimodal chain-ofthought reasoning in language models, 2023, Amazon(Alex Smola)**
+   - Automatic CoT
+      - **Automatic Prompt Augmentation and Selection with Chain-of-Thought from Labeled Data, 2023**
 
 - World knowledge and augumented language model
    - **REALM: Retrieval-Augmented Language Model Pre-Training, 2020, Google** (OK)
@@ -359,26 +361,61 @@ date: 3/2/2023
                - WebGPT
             - Prompt pre-training: mix pre-training data with labeled demo. of reasons
                - Galactica
-            - Bootstrapping: prompt LM to reason or act in few shot setup with final prediction, examples lead to incorrect prediction removed, initial LM fine tuned on coorect examples 
-               - STaR: Self-taught reasoner bootstrapping reasoning with reasoning, 2022
-               - Talm: Tool augmented language models, 2022
+            - Bootstrapping: prompt LM to reason or act in few shot setup with final prediction, examples lead to incorrect prediction removed, initial LM fine-tuned on coorect examples 
+               - **STaR: Self-taught reasoner bootstrapping reasoning with reasoning, 2022**
+               - **Talm: Tool augmented language models, 2022**
+                  - Oneword: text-only approach to augument LM with non-differential tools, self-play technique to bootstrap performance with few tool usage demonstrations at the beginning
+                  - Methods:
+                     - Task and tool interface: *task input text |tool-call too input text |result tool output text |output task output text*
+                     - Self-play: 
+                        1. start with bootstrap set $D = \{(x_j, t_j, r_j, y_j)\}$
+                        2. finetune LM with $D$
+                        3. for each examples in task, sample tool & input($t_j$), call tool to get the result, sample task output
+                           - use high temperature(1.0) and sample size (topk=40) to explore text of diverse tool API invocation 
+                        4. if task output match target $y_j$ within threshold, add $(x_j, t_j, r_j, y_j)$ to D
+                        5. goto step 2
+                     - RL analogy:
+                        - policy-gradient with LM as policy $\pi(t_j|\theta)$
+                        - policy gradient with a binary reward for matching target $y_j$
          - Reinforcement Learning
             - Human preference data(ranking/like/dislike): from SFT to RL
             - Most RL work teach LM to act rather than reason(besides STaR)
             - Hardcode reward:
-               - Conqrr: Conversational query rewriting for retrieval with reinforcement learning, 2022
-               - Rainier: Reinforced knowledge introspector for commonsense question answering, 2022
-               - Webshop: Towards scalable real-world web interaction with grounded language agents, 2022
-               - Regen: Reinforcement learning for text and knowledge base generation using pretrained language models, 2021
+               - **Conqrr: Conversational query rewriting for retrieval with reinforcement learning, 2022**
+               - **Rainier: Reinforced knowledge introspector for commonsense question answering, 2022**
+               - **Webshop: Towards scalable real-world web interaction with grounded language agents, 2022**
+               - **Regen: Reinforcement learning for text and knowledge base generation using pretrained language models, 2021**
             - Human feedback(RLFH): Alignment:
-               - Tamer: Training an agent manually via evaluative reinforcement, 2008
-               - Deep tamer: Interactive agent shaping in high-dimensional state spaces, 2018
-               - Is reinforcement learning (not) for natural language processing?: Benchmarks, baselines, and building blocks for natural language policy optimization, 2022
+               - **Tamer: Training an agent manually via evaluative reinforcement, 2008**
+               - **Deep tamer: Interactive agent shaping in high-dimensional state spaces, 2018**
+               - **Is reinforcement learning (not) for natural language processing?: Benchmarks, baselines, and building blocks for natural language policy optimization, 2022**
                - InstructGPT
                - WebGPT 
-               - GopherCite: Teaching language models to support answers with verified quotes, 2022
+               - **GopherCite: Teaching language models to support answers with verified quotes, 2022**
                - diff. in external module vs. external tools(web browser) ??
-               - Toolformer: Language models can teach themselves to use tools, 2023
+               - **Toolformer: Language models can teach themselves to use tools, 2023**
+                  - Oneword: a model trained to decide which APIs to call, when to call them, what arguments to pass, and how to best incorporate them for the next token prediction
+                  - Methods: 5 steps involved
+                     1. Sampling API calls from LM with specific prompt $P(\bold{x})$ for each tool
+                        - sampling top-$k$ positions according to $p_M(<API>|P(\bold{x}), x_{1:i})$
+                        - for each position, sampling upto $m$ API calls
+                     2. Executes API calls: obtain $m$*$k$ response text
+                     3. Filtering API calls: by loss reduction threshold $T_f$
+                        - Loss: $L_i(\bold{z}) = - \sum_{j=i}^{n} w_{j-i} \cdot \log p_M(x_j | \bold{z}, x_{1:j-1})$
+                        - Loss reduction: $\min (L_i(\epsilon), L_i(e(c_i, \epsilon))) - L_i(e(c_i, r_i)) \gt T_f$ 
+                        - $e(c_i, r_i) := [a_c(i_c)->r]$
+                     4. Model finetuning: 
+                        - augument $\bold{x} \in C$ with API calls: $x_{1:i}, e(c_i, r_i), x_{i+1:n}$
+                        - finetune with augumented corpus
+                     5. Prediction:
+                        - decode as usual, when generating '->', call API to fill the next token followed by ']', the continue the decoding process
+                  - Tools tested:
+                     - Question Answering:
+                        - **Atlas: Few-shot Learning with Retrieval Augmented Language Models, 2022, MetaAI**
+                     - Calculator
+                     - Wikipedia Search: BM25 retrieval on the indexes of Wikepedia dump
+                     - Machine Translation System
+                     - Calendar
       - Discussion
          - **Looped transformers as programmable computers, 2023**
          - **A path towards autonomous machine intelligence, 2022, Lecun**
