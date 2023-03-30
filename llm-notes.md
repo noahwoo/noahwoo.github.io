@@ -396,16 +396,16 @@ date: 3/2/2023
                - **Toolformer: Language models can teach themselves to use tools, 2023**
                   - Oneword: a model trained to decide which APIs to call, when to call them, what arguments to pass, and how to best incorporate them for the next token prediction
                   - Methods: 5 steps involved
-                     1. Sampling API calls from LM with specific prompt $P(\bold{x})$ for each tool
-                        - sampling top-$k$ positions according to $p_M(<API>|P(\bold{x}), x_{1:i})$
+                     1. Sampling API calls from LM with specific prompt $P(\textbf{x})$ for each tool
+                        - sampling top-$k$ positions according to $p_M(<API>|P(\textbf{x}), x_{1:i})$
                         - for each position, sampling upto $m$ API calls
                      2. Executes API calls: obtain $m$*$k$ response text
                      3. Filtering API calls: by loss reduction threshold $T_f$
-                        - Loss: $L_i(\bold{z}) = - \sum_{j=i}^{n} w_{j-i} \cdot \log p_M(x_j | \bold{z}, x_{1:j-1})$
+                        - Loss: $L_i(\textbf{z}) = - \sum_{j=i}^{n} w_{j-i} \cdot \log p_M(x_j | \textbf{z}, \textbf{x}_{1:j-1})$
                         - Loss reduction: $\min (L_i(\epsilon), L_i(e(c_i, \epsilon))) - L_i(e(c_i, r_i)) \gt T_f$ 
                         - $e(c_i, r_i) := [a_c(i_c)->r]$
                      4. Model finetuning: 
-                        - augument $\bold{x} \in C$ with API calls: $x_{1:i}, e(c_i, r_i), x_{i+1:n}$
+                        - augument $\textbf{x} \in C$ with API calls: ($\textbf{x}_{1:i}, e(c_i, r_i), \textbf{x}_{i+1:n}$)
                         - finetune with augumented corpus
                      5. Prediction:
                         - decode as usual, when generating '->', call API to fill the next token followed by ']', the continue the decoding process
