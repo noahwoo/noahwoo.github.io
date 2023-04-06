@@ -31,6 +31,7 @@ date: 3/2/2023
 # Resources on track
 - Transformers
    - **Thinking Like Transformers, 2021**
+   - **Training compute-optimal large language models, 2022, Deepmind**
    - **Transformers: State-of-the-Art Natural Language Processing, 2020, Huggingface**
       - Targets
          - Extensible for researcher
@@ -127,10 +128,17 @@ date: 3/2/2023
       - **Scaling Language Models: Methods, Analysis & Insights from Training Gopher, 2022, (Google/DeepMind)**
    - T5 series: (training all kinds of task in unified text-to-text way)
       - **Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer, 2020, Google (T5)**
-   
+
+- Instruct Finetuning
+   - **SELF-INSTRUCT: Aligning Language Model with Self Generated Instructions, 2022**
+      - In one word: improve the instruction following capabilities of pretrained LM by bootstrapping off its own generation
+      - 
+
 - RLFH series:
    - **Illustrating Reinforcement Learning from Human Feedback (RLHF), 2022, Hugging Face Blog**
       - [Github Link](https://github.com/huggingface/blog/blob/main/rlhf.md)
+   - **Deep reinforcement learning from human preferences, 2017, OpenAI**
+   - **A survey of preference-based reinforcement learning methods, 2017, JMLR**
 
 - Prompt(hard/soft) engineering
    - Survey:
@@ -141,7 +149,7 @@ date: 3/2/2023
       - **Prompt Tuning: The Power of Scale for Parameter-Efficient Prompt Tuning, 2021, Google** (OK)
       - **P-tuning/P-tuning V2: Prompt Tuning Can Be Comparable to Fine-tuning Universally Across Scales and Tasks, 2021, Tsinghua** (OK)
       - **Unified View: Towards a unified view of parameter-efficient transfer learning, 2022, CMU** (OK)
-         - One-word: Unify Adpater/LoRA/Prefix-tuning into the modification to specific hidden states(heads) in pretrained model
+         - In one word: Unify Adpater/LoRA/Prefix-tuning into the modification to specific hidden states(heads) in pretrained model
          - Aspects of modifications
             - target: head-attention(Prefix Tuning), attention(Adapter/LoRA), ffn(Adapter), key/value tranform matrix(LoRA)
             - composition: $h \leftarrow h + s \Delta h$ or $h \leftarrow (1-\lambda(x)) h + \lambda(x) \Delta h$ (PrefixTuning)
@@ -157,8 +165,15 @@ date: 3/2/2023
             - ffn modification utilize the added parameters more effectively than (head-)attention, except for the case with less than 0.1% parameters added
             - scaling composition function better than vanilla additive one
             - Mix-And-Match adapter utilizing the good of Prefix-tuning and Adapter works better
+      - **[LoRA for Stable Diffusion Finetuning](https://huggingface.co/blog/lora)**
+         - **[Github](https://github.com/cloneofsimo/lora)**
+         - **DreamBooth: Fine Tuning Text-to-Image Diffusion Models for Subject-Driven Generation, 2022, Google**
+         - **An Image is Worth One Word: Personalizing Text-to-Image Generation using Textual Inversion, 2022, NVIDIA**
+         - **Pivotal Tuning for Latent-based Editing of Real Images, 2021**
+         - **[The Illustrated Stable Diffusion](https://jalammar.github.io/illustrated-stable-diffusion/), 2022**
+         - **[The Annotated Diffusion Model](https://huggingface.co/blog/annotated-diffusion), 2022**
    - Automation:
-      - **Large Language Models Are Human-Level Prompt Engineers**, 2023
+      - **Large Language Models Are Human-Level Prompt Engineers, 2023**
    - Applications: 
       - **Prompt tuning GPT-2 language model for parameter-efficient domain adaptation of ASR systems, 2022, Amazon** (OK)
 
@@ -170,7 +185,7 @@ date: 3/2/2023
       - **Rethinking the Role of Demonstrations: What Makes In-Context LearningWork?, 2022, Facebook**
       - **An Explanation of In-context Learning as Implicit Bayesian Inference, 2022, Stanford**
       - **[How does in-context learning work? A framework for understanding the differences from traditional supervised learning](https://ai.stanford.edu/blog/understanding-incontext/), 2022, Stanford**
-         - One word: 
+         - In one word: 
             - In context learning as a Bayesian inference of the prompt concept that every example in the prompt shares: $z$ in $P(z|p)$
          - Methods
             - Pretraining distribution: assume LLM fits the pretraining distribution exactly
@@ -203,7 +218,7 @@ date: 3/2/2023
          - sequential reasoning embodied in chain of thought is useful for reasons beyond just activating knowledge
    - **Self-consistency improves chain of thought reasoning in language models, 2023, Google**
    - **Reasoning with Language Model Prompting: A Survey, 2022, Alibaba**
-      - One word: survey of cutting-edge research on reasoning with language model prompting
+      - In one word: survey of cutting-edge research on reasoning with language model prompting
       - Methods
          - Strategy Enhenced Reasoning: design better reasoning strategy, like CoT/Multi-stage CoT
             - Prompt Enginneering: 
@@ -240,7 +255,7 @@ date: 3/2/2023
    - **Towards Reasoning in Large Language Models: A Survey, 2022, UIUC**
    - **ReAct: Synergizing reasoning and action in language models, 2022, Google** (OK)
    - **Show Your Work: Scratchpads for Intermediate Computation with Language Models, 2021, Google Brain**
-      - One word: fine-tune Transformers to perform multi-step computations(long digits addition/program exec.) with intermediate computation steps as prompt written into a “scratchpad”
+      - In one word: fine-tune Transformers to perform multi-step computations(long digits addition/program exec.) with intermediate computation steps as prompt written into a “scratchpad”
       - Conclusions: 
          - encoding long digits addition process step by step (add&carry) as text and doing supervised fine-tuning improve the performance of long digits addition tasks
          - encoding polynomial evaluation process step by step (item by item) as text and fine-tuning improve the performance of polynomial evaluation tasks
@@ -254,12 +269,12 @@ date: 3/2/2023
             - Scratchpad fine-tuning models perform well with the scaling of model size
 
    - **StAR: Bootstrapping reasoning with reasoning, 2022, Google**
-      - One word: iteratively leverage a small number of rationale examples and a large dataset without rationales, to bootstrap the ability to perform more complex reasoning
+      - In one word: iteratively leverage a small number of rationale examples and a large dataset without rationales, to bootstrap the ability to perform more complex reasoning
       - Methods:
          - In brief:
             1. prompt with few-shot rationale examples, answer questions
             2. if answer wrong, generate rationale with correct answer (Rationalization)
-            3. fine-tuning on <P, rationale, C> with rationale leading to or rationalized with correct answer from step 1 and step 2
+            3. fine-tuning on &lt;P, rationale, C&gt; with rationale leading to or rationalized with correct answer from step 1 and step 2
             4. repeat from step 1 (hence the 'bootstrap')
          - In details: 
             - almost the same as in brief
@@ -270,7 +285,7 @@ date: 3/2/2023
             - CommonsenseQA: 12k question with five choices
             - GSM8K: grade-school-level word problem
    - **Self-ask: Measuring and narrowing the compositionality gap in language models, 2022, MetaAI**
-      - One word: measure and solve the problem of compositional gap: the fraction of incorrectly answered questions with correct sub-problems answers by model
+      - In one word: measure and solve the problem of compositional gap: the fraction of incorrectly answered questions with correct sub-problems answers by model
       - Methods: CoT and self-ask works, self-ask perform better with the help of search engine
          - In breif: Similar to least-to-most, prompt with examples
             - started with 'Are follow up questions needed here: Yes/No'
@@ -291,7 +306,7 @@ date: 3/2/2023
             - reading random Wikipedia articles and writing a 2-hop question about them
             - fitler the questions that can be answered by search engine correctly
    - **Least-to-most prompting enables complex reasoning in large language models, 2022, Google**
-      - Oneword: Solve problem harder than the demonstration examples in CoT prompt
+      - In one word: Solve problem harder than the demonstration examples in CoT prompt
       - Methods: least to most prompting, using a progressive sequence prompts to help language model learn a new skill
          - In brief: based on few-shot prompting
             - reduce the complex problem in many sub-problems by querying LLM
@@ -330,7 +345,7 @@ date: 3/2/2023
       - Prompt tuning employed for soft-prompt in experiments
    - **RETRO: Improving language models by retrieving from trillions of tokens, 2022, Google/DeepMind**
    - **WebGPT: Browser-assisted question-answering with human feedback, 2022, OpenAI**
-      - In brief
+      - In one word
          - fine-tuned on question-human demonstration pairs
          - optimization via RLHF
       - Method on details, four aspects
@@ -361,10 +376,10 @@ date: 3/2/2023
                - WebGPT
             - Prompt pre-training: mix pre-training data with labeled demo. of reasons
                - Galactica
-            - Bootstrapping: prompt LM to reason or act in few shot setup with final prediction, examples lead to incorrect prediction removed, initial LM fine-tuned on coorect examples 
+            - Bootstrapping: prompt LM to reason or act in few shot setup with final prediction, examples lead to incorrect prediction removed, initial LM fine-tuned on correct examples 
                - **STaR: Self-taught reasoner bootstrapping reasoning with reasoning, 2022**
                - **Talm: Tool augmented language models, 2022**
-                  - Oneword: text-only approach to augument LM with non-differential tools, self-play technique to bootstrap performance with few tool usage demonstrations at the beginning
+                  - In In one word: text-only approach to augument LM with non-differential tools, self-play technique to bootstrap performance with few tool usage demonstrations at the beginning
                   - Methods:
                      - Task and tool interface: *task input text |tool-call too input text |result tool output text |output task output text*
                      - Self-play: 
@@ -390,11 +405,52 @@ date: 3/2/2023
                - **Deep tamer: Interactive agent shaping in high-dimensional state spaces, 2018**
                - **Is reinforcement learning (not) for natural language processing?: Benchmarks, baselines, and building blocks for natural language policy optimization, 2022**
                - InstructGPT
-               - WebGPT 
+               - **WebGPT**
+               - **Internet-augmented language models through few-shot prompting for open-domain question answering, 2022, Deepmind**
                - **GopherCite: Teaching language models to support answers with verified quotes, 2022**
+                  - In one word: Use RLFH to train *open-book*(to search engine) QA models that generates answers while also *cite* evidence for their claims
+                  - Methods:
+                     - Inline evidence syntax(cited answer): `%&<Claim>%(Document title)%[Quote from document]%` , Self-supported Question Answering (SQA)
+                     - Pretraining LM, condition on on-the-shelf retrieval system: Gopher & Google
+                     - Training pipelines: 
+                        1. Collect cited answers from best current model, have it labeled by human
+                           - bootstrap with few-shot prompting for base Gopher model in first round
+                              - (constrained)sampling tens of thousands cited answers from prompted Gopher, ask human to annotate the high-quality ones
+                           - collect high quality `<question, cited answer>` pairs from human
+                              - a question and two candidates answers with cite
+                              - check whether each answers is *Plausible* to the question and *Supported* by the quote evidence
+                        2. Train supervised finetuning(SFT) model, teach model to produce verbatim quotes in evidence syntax
+                           - only *Rated-Good*(Plausible and Supported) examples used for training
+                           - predict with retrieved documents and question as prompt
+                              - prompt template: `{Instruction}\n [Page: {title} \n {documents}\n]+ Question: {question}\n Answer:`
+                           - train with uniform random number of retrieved documents to prompt Gopher within 4096 tokens limits, each document truncated with text surrounding the snippet of search engine
+                        3. Train a Reward Model(RM) for a scalar *overall quality* label
+                           - loss: average of the pairwise preference prediction loss and the Supported&Plausible response prediction loss
+                           - warm-start from pretrained 7B LM from Gopher family
+                           - RM used in inference: rerank of candidate response, SFT+top@N or RL+top@N
+                        4. RLFH against the Reword Model
+                           - maximize the reward model: $E_{P_r(x)}[r(x,y)]$
+                           - algorithm: A2C with KL divergence between $P_r(x)$ and initial next-tokens distribution
+                           - initialization: SFT model in Step-2
+                           - freeze 60% of layers, share parameters between policy and value function
+                           - introduce a *bad-syntax penalty* rules
+                        5. Repeat from Step-1 
+                     - Declining to answer 
+                        - use global score of Reward Model as the criteria for answer, decline if lower than a threshold
+                  - Tricks in high quality human annotations:
+                     - *super star* model with 85% aggreement on researchers in Plausible and Supported
+                     - attention check: further training to rater before experiments, screen out raters with too many incorrect answers
+                     - multiple raters: 3 for super rater pool, 6 for wider pool of raters
+                  - Ablation findings
+                     - Rerank with RM improve performance over SFT
+                     - RL improve performance over naive SFT or RL agent decoding with a single sample
+                     - In rerank regime, SFT outperforms RL in *NaturalQuestions* task
+                        - RL reduce the diversity of sampled answers, dimishing the benefits of reranking from large sampling
+                        - finetune biased to *ELI5* tasks by design
+
                - diff. in external module vs. external tools(web browser) ??
                - **Toolformer: Language models can teach themselves to use tools, 2023**
-                  - Oneword: a model trained to decide which APIs to call, when to call them, what arguments to pass, and how to best incorporate them for the next token prediction
+                  - In one word: a model trained to decide which APIs to call, when to call them, what arguments to pass, and how to best incorporate them for the next token prediction
                   - Methods: 5 steps involved
                      1. Sampling API calls from LM with specific prompt $P(\textbf{x})$ for each tool
                         - sampling top-$k$ positions according to $p_M(<API>|P(\textbf{x}), x_{1:i})$
@@ -412,6 +468,42 @@ date: 3/2/2023
                   - Tools tested:
                      - Question Answering:
                         - **Atlas: Few-shot Learning with Retrieval Augmented Language Models, 2022, MetaAI**
+                           - In one word: 
+                              - a carefully designed and pre-trained retrieval augmented language model able to learn knowledge intensive tasks with very few training examples
+                           - Investigate two questions
+                              - whether few-shot learning ability requies models to store a large amount of information in their parameters
+                              - if memorisation can be decoupled from generalization
+                           - Methods: language model and dense retriever
+                              - Retriever: a dual-decoder architecture (Contriever), pretrained using MoCo constrastive loss
+                              - Language model: T5 seq2seq architecture, with Fusion-in-Decoder modification
+                                 - concatenate the outputs of encoder from different documents, perform cross-attention over the single sequence in decoder
+                              - Four training objectives tested
+                                 - Attention distrillation: cross-attention scores as proxy for documents importance in LM
+                                    - retrieval distribution: $p_{RETR}(\textbf{d}|\textbf{q})=\frac{exp(s(\textbf{d},\textbf{q})/\theta)}{\sum_k exp(s(\textbf{d}_k,\textbf{q})/\theta)}$
+                                    - attention disbribution: $p_{ATTN}(\textbf{d}|\textbf{q})=softmax(\{AVG(\alpha_n \|v_n\|)_d\})$
+                                    - KL distance between the above two distributions as loss
+                                 - End-to-end training of Multi-Document Reader and Retriever: 
+                                    - $\log [ \sum_{k=1}^K p_{LM}(\textbf{a}|\textbf{q}, \textbf{d}_k) p_{RETR(\textbf{d}_k|\textbf{q})} ]$
+                                 - **Perplexity distrillation**: change attention distribution to
+                                    - $p_{PERP}(\textbf{d}|\textbf{q})=softmax(\{ \log p_{LM}(\textbf{a} | \textbf{d}_k, \textbf{q}) \}_k)$
+                                 - Leave-one-out Perplexity Distillation: complementary to perplexity distrillation
+                              - Three pretext(pretraining) tasks: jointly training of retriever and language modeling, initialized parameters from $\textbf{Contriever}$ and $\textbf{T5-lm-adapt}$ respectively
+                                 - Prefix language modeling
+                                 - Masked language modeling
+                                 - Title to section generation
+                              - Efficient retriever finetuning: alleviating the need to re-computing the index whenever documents embedding updated
+                                 - Full index update at every $R$ training steps(batches): 30% overhead compared to LM training only
+                                 - Rerank the top $L$ documents with latest embedding index, select top $K$, 10% overhead
+                                 - Query-side finetuning: decouple the encoding of the queries and documents
+                                    - performance varies when large training dataset available
+                                    - in few-shot settings, no performance degrade observed, even better
+                              - Datasets & experiments: 
+                                 - Datasets: Knowledge Intensive Language Tasks/Massively-Multitask Language Understanding
+                                 - Pretraing: pretrain for 10,000 steps, updates index every 1000 steps.
+                                    - Datasets: 
+                                       - 11/20/2021 Wikipedia dump, 37M passages, 78 words in average
+                                       - 2020-10 Common Crawl dump, 350M passages
+                                 - Finetuning: fixed iteration steps adapted to downstream tasks
                      - Calculator
                      - Wikipedia Search: BM25 retrieval on the indexes of Wikepedia dump
                      - Machine Translation System
@@ -421,6 +513,32 @@ date: 3/2/2023
          - **A path towards autonomous machine intelligence, 2022, Lecun**
          - **Language models (mostly) know what they know, 2022**
          - **React: Synergizing reasoning and acting in language models, 2022**
-
+   - **HuggingGPT: Solving AI Tasks with ChatGPT and its Friends in HuggingFace, 2023, MSRA**
+      - In one word: a system that leverages LLMs to connect various AI models in Huggingface to solve multi-modal AI tasks
+      - Methods: four steps in all
+         1. Task planning: 
+            - spec. based instruction: &lt; task-id, task-type, task-deps, task-args &gt;
+            - parse by filling in spec. slots by LLM
+            - in-context prompt by demostrations
+            - Prompts: `The AI assistant can parse user input to several tasks: [{"task": task, "id", task_id, "dep": dependency_task_ids, "args": {"text": text, "image": URL, "audio": URL, "video": URL}}]. The "dep" field denotes the id of the previous task which generates a new resource that the current task relies on. A special tag "<resource>-task_id" refers to the generated text image, audio and video in the dependency task with id as task_id. The task MUST be selected from the following options: {{ Available Task List }}. There is a logical relationship between tasks, please note their order. If the user input can’t be parsed, you need to reply empty JSON. Here are several cases for your reference: {{ Demonstrations }}. The chat history is recorded as {{ Chat History }}. From this chat history, you can find the path of the user-mentioned resources for your task planning`
+            - A demo(Use some scaffolds maybe better): `Look at /exp1.jpg, Can you tell me how many objects in the picture?\n\n [{"task": "image-to-text", "id": 0, "dep": [-1], "args": {"image": "/exp1.jpg" }}, {"task": "object-detection", "id": 0, "dep": [-1], "args": {"image": "/exp1.jpg" }}]`
+         2. Model selection:
+            - frame model task assignments as single choice problem, with task as question and models as choice
+            - filter model based on the task-type
+            - ranking model by the number of downloads, and select top-10 as choices
+            - Prompts: `Given the user request and the call command, the AI assistant helps the user to select a suitable model from a list of models to process the user request. The AI assistant merely outputs the model id of the most appropriate model. The output must be in a strict JSON format: "id": "id", "reason": "your detail reason for the choice". We have a list of models for you to choose from {{ Candidate Models }}. Please select one model from the list.`
+            - Candidates model: `[{"model_id": model id #1, "metadata": metadata infos #1, "description": description of model #1}, {"model_id": model id #2, "metadata": metadata infos #2, "description": description of model #2}]`
+         3. Task execution:
+            - Hybrid endpoint of local and HF inference
+            - resources(args) referred as &lt; resouce-task_id &gt; in planning, replaced with corresponding task response during execution
+         4. Response generation:
+            - planned tasks, models selected for each task and the *inference results* for each model used to compose a concise summary
+            - inference results in structured format with probabilites for bounding-box(obj. detect model) or answer distribution(QA model) etc.
+            - LLM summarize the final response, with confidence level
+            - Prompts: `With the input and the inference results, the AI assistant needs to describe the process and results. The previous stages can be formed as - User Input: {{ User Input }}, Task Planning: {{ Tasks }}, Model Selection: {{ Model Assignment }}, Task Execution: {{ Predictions }}. You must first answer the user’s request in a straightforward manner. Then describe the task process and show your analysis and model inference results to the user in the first person.  If inference results contain a file path, must tell the user the complete file path.`
+- Multilingual 
+   - **Few-shot Learning with Multilingual Generative Language Models, 2022, Meta AI**
+   - **PaLM-E: An Embodied Multimodal Language Model, 2023, Google Research**
+   - **MM-REACT: Prompting ChatGPT for Multimodal Reasoning and Action, 2023, Microsoft Azure**
 - Alignments
    - **In conversation with Artificial Intelligence: aligning language models with human values, 2022, Google/DeepMind**
