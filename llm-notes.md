@@ -52,8 +52,8 @@ date: 3/2/2023
    - GPT-3: **Language Models are Few-Shot Learners, 2020, OpenAI** (OK)
    - **InstructGPT: Training language models to follow instructions with human feedback, 2022, OpenAI** (OK)
       - Reference:
+         - **Deep Reinforcement Learning from Human Preferences, 2020, Deepmind/OpenAI**
          - **Fine-Tuning Language Models from Human Preferences, 2020, OpenAI**
-            - Date: 3/2/2023
             - Tasks: Stylistic continuation(in sentiment or genre) and Summarization
             - Optimize over $(x, {y_i}, b)$, LogLikelihood
             - Logits consist of reward from LM $r(x,y)$ and KL dist. between new and old model
@@ -61,7 +61,6 @@ date: 3/2/2023
                - summarization: pretrain 774M GPT-2 LM, then RL fine-tune
                - stylistic continuation: train with WebText from scrath, SFT on BookCorpus, then RL fine-tune
          - **Learning to summarize from human feedback, 2021, OpenAI**
-            - Date: 3/21/2023
             - Goal: advance methods for training language models on objectives that more closely capture the behavior we care about. 
             - Task: Text summarization on Reddit TL;DR dataset
             - Annotation quality: aggreement level between labeler and researcher
@@ -132,7 +131,27 @@ date: 3/2/2023
 - Instruct Finetuning
    - **SELF-INSTRUCT: Aligning Language Model with Self Generated Instructions, 2022**
       - In one word: improve the instruction following capabilities of pretrained LM by bootstrapping off its own generation
-      - 
+      - Methods: definition of instruction data -> $(I_t, [X_t, Y_t]+)$ , $X_t$ can be empty
+         1. Instruction generation
+            - 175 tasks pool with instruction from human annotation, more from bootstrapping in the following
+            - sample 8 tasks from the pool, 6 from human annotation, 2 from model generated tasks
+            - in-context learning prompt like: `Come up with a series of tasks: \n\n Task 1: {Instruction for existing task-1} \nTask 2: {Instruction for existing task-2}\n...\nTask 8: {Instruction for existing task-8\nTask 9: }`
+         2. Identify if the instruction represents a classification task
+            - task type(classification or not) used for instance generation
+            - 12 classification and 19 non-classification few-shot prompts
+         3. Instance generation: few-shot prompting with instruction-input-output demonstations
+            - Input-first approach: for non-classification task
+               - LLM first come up the input
+               - then produce the output based on the input
+            - Output-first approach: for classification task, solve the label inbalance problem
+               - generate the output label first
+               - generate the input condition on the output label
+         4. Filter low-quality data
+               - instruction diversity: use instruction with ROUGE-L overlap score < 0.7 for any existing ones
+               - instance diversity and consistency: dedup instance, filter out instance with same input but different output
+         5. Finetune LM to follow the instructions
+      - Results: 
+         - 52K instructions and 82K instances generated with good diversity and quality(92% valid instruction, 54% valid input/output and instruction)
 
 - RLFH series:
    - **Illustrating Reinforcement Learning from Human Feedback (RLHF), 2022, Hugging Face Blog**
@@ -180,7 +199,6 @@ date: 3/2/2023
 - In context learning
    - Survey
       - **A Survey on In-context Learning, 2023, PKU** (OK)
-         - 3/3/2023: read through
    - Explanations:
       - **Rethinking the Role of Demonstrations: What Makes In-Context LearningWork?, 2022, Facebook**
       - **An Explanation of In-context Learning as Implicit Bayesian Inference, 2022, Stanford**
@@ -267,7 +285,6 @@ date: 3/2/2023
             - Fine-tuning with 100K examples for 5K steps, batch size 32
             - Test with 10K in-distribution and 1K out-of-distribution examples
             - Scratchpad fine-tuning models perform well with the scaling of model size
-
    - **StAR: Bootstrapping reasoning with reasoning, 2022, Google**
       - In one word: iteratively leverage a small number of rationale examples and a large dataset without rationales, to bootstrap the ability to perform more complex reasoning
       - Methods:
@@ -400,9 +417,33 @@ date: 3/2/2023
                - **Rainier: Reinforced knowledge introspector for commonsense question answering, 2022**
                - **Webshop: Towards scalable real-world web interaction with grounded language agents, 2022**
                - **Regen: Reinforcement learning for text and knowledge base generation using pretrained language models, 2021**
-            - Human feedback(RLFH): Alignment:
-               - **Tamer: Training an agent manually via evaluative reinforcement, 2008**
-               - **Deep tamer: Interactive agent shaping in high-dimensional state spaces, 2018**
+            - Human feedback(RLFH): Alignment
+               - **TAMER: Training an agent manually via evaluative reinforcement, 2008**
+                  - In one word: allows a human to train a learning agent to perform a common class of complex tasks by giving scalar reward signal for agent's observed actions
+                  - Methods: MDP\R paradigm
+                     - use supervised learning method to model human's reward
+                     - act greedily according to this model
+                     - action represented by state features changes: $\Delta f_{t+1,t} = \overrightarrow{f_{t+1,a}} - \overrightarrow{f_{t}}$
+                     - reward modeled by linear combination of action features
+                     - reward model updated online by each feedback from human
+                     - action with maximal current estimated reward selected (reward model act as the policy)
+                  - More notes
+                     - in domains in which human have intuition or expertise, necessary to transfer the knowledge to learning agent, by the means of judging the agent's action
+                     - TAMER agent greedily maximize the immediate return, leave long-term implications to human judger
+                     - human rewards are moving target and even personalized for human serving agent
+                     - human and environment reward can be combined
+                  - Results: a decent policy for Teris with 3 round games
+               - **Deep TAMER: Interactive agent shaping in high-dimensional state spaces, 2018**
+                  - In one word: an extension of TAMER that leverages the representation power of DNN to learn complex tasks in a short amount of time with human trainer
+                  - Methods(differences to TAMER): 
+                     - choice of the function class to represent feedback from human
+                        - Pretrained Autoencoder(AE) used to project the input(image) into low dimensional space
+                        - 2-layers FC with 16 hidden units, one output node for each action
+                     - optimization algorithms to train the agent
+                        - decouple training updates and human feedback, a feedback replay buffer used, updating when
+                           - human feedback observed, compute loss for all history states within the period of feedback has affection
+                           - every $b$ replay buffer updates period by sampling from the replay buffer
+                        - weight loss by affection: $\mathcal{l}(\hat{H}; \textbf{x}, \textbf{y}) = w(t^s, t^e, t^f) (\hat{H}(\textbf{s}, \textbf{a}) - h)^2$
                - **Is reinforcement learning (not) for natural language processing?: Benchmarks, baselines, and building blocks for natural language policy optimization, 2022**
                - InstructGPT
                - **WebGPT**
@@ -447,8 +488,6 @@ date: 3/2/2023
                      - In rerank regime, SFT outperforms RL in *NaturalQuestions* task
                         - RL reduce the diversity of sampled answers, dimishing the benefits of reranking from large sampling
                         - finetune biased to *ELI5* tasks by design
-
-               - diff. in external module vs. external tools(web browser) ??
                - **Toolformer: Language models can teach themselves to use tools, 2023**
                   - In one word: a model trained to decide which APIs to call, when to call them, what arguments to pass, and how to best incorporate them for the next token prediction
                   - Methods: 5 steps involved
@@ -542,3 +581,5 @@ date: 3/2/2023
    - **MM-REACT: Prompting ChatGPT for Multimodal Reasoning and Action, 2023, Microsoft Azure**
 - Alignments
    - **In conversation with Artificial Intelligence: aligning language models with human values, 2022, Google/DeepMind**
+- DNN
+   - **[Anatomize Deep Learning with Information Theory](https://lilianweng.github.io/posts/2017-09-28-information-bottleneck/)**

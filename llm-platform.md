@@ -12,8 +12,12 @@ date: 3/13/2023
    - Agents: Dynamic Chains
    - Memory:
    - Evaluation:
-- Public documents
-   - Langchain github: https://github.com/hwchase17/langchain
+- Open source
+   - [Langchain github](https://github.com/hwchase17/langchain)
+
+# Fixie
+- [Github](https://github.com/fixie-ai/fixie-sdk)
+- [Fixie Official Site](https://www.fixie.ai/)
 
 # Open AI LLM
 - 4 areas:
@@ -24,9 +28,12 @@ date: 3/13/2023
       - Similar to `Data Augumented Generation' in langchain
 
 # GPT-index
-- https://github.com/jerryjliu/llama_index
+- [LLamaIndex](https://github.com/jerryjliu/llama_index)
 
 # Hugging face transformer related model
+- [PEFT](https://github.com/huggingface/peft)
+- [TRLX](https://github.com/CarperAI/trlx)
+- [trl with peft demo](https://huggingface.co/blog/trl-peft)
 
 # Microsoft's Azure
 
