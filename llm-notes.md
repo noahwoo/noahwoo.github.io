@@ -234,11 +234,11 @@ date: 3/2/2023
 
 - Distributed training and inference
    - Data parallel
-      - DDP PyTorch: allreduce
+      - DDP PyTorch: all-reduce
       - Deepspeed(ZeRO): 
          - shards optimizer states, gradients, parameters to data parallel workers
          - each worker updates the local parameters by forward/backward
-         - global parameter and gradient synced by scatter and scatter_reduce in each layer, RAM released for next layer
+         - global parameter and gradient synced by all-gather and reduce-scatter in each layer, RAM released for next layer
       - FSDP: PyTorch offical version of ZeRO, replacement for DDP
    - Model parallel
       - Tensor Parallel: horizontal partition
