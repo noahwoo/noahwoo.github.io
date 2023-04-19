@@ -32,6 +32,27 @@ date: 3/2/2023
 - Transformers
    - **Thinking Like Transformers, 2021**
    - **Training compute-optimal large language models, 2022, Deepmind**
+   - **Formal Algorithms for Transformer, 2022, Deepmind**
+      - In one word: a self-contained, mathematically precise overview of transformer architectures in pesudo-code
+      - Notes: 
+         - pesudo-code for each modules of Transformer: 
+            - Token embedding
+            - Position embedding
+            - Attention
+               - Single query attention
+               - Attention for sequence
+               - Multi-head attention
+            - Layer-norm
+            - FFN(absent due to simplicity)
+            - Unembedding(decoding, or head in transformers lib. of huggingface)
+         - pesudo-code for several transformer like architectures
+            - Encoder-Decoder Transformer
+            - Encoder Transformer
+            - Decoder Transformer
+         - misc
+            - depict in matrix-vector product, instead of the mostly used vector-matrix product form
+            - use bias $b$ in QKV projection: $k = Wx+b$ 
+   - **[A precise and nano implementation of GPT2](https://github.com/karpathy/nanoGPT)**
    - **Transformers: State-of-the-Art Natural Language Processing, 2020, Huggingface**
       - Targets
          - Extensible for researcher
@@ -45,6 +66,8 @@ date: 3/2/2023
          - model easy to switch from framework(say PyTorch) to the other one(say Tensorflow)
          - export to intermediate neural network format
          - use adapters to convert models to CoreML weights for edge devices
+   - **[A Mathematical Framework for Transformer Circuits](https://transformer-circuits.pub/2021/framework/index.html)**
+   - **[In-context Learning and Induction Heads](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html)**
 
 - OpenAI GPT series: 
    - GPT-1: **Improving Language Understanding by Generative Pre-Training, 2018, OpenAI** (OK)
@@ -127,6 +150,106 @@ date: 3/2/2023
       - **Scaling Language Models: Methods, Analysis & Insights from Training Gopher, 2022, (Google/DeepMind)**
    - T5 series: (training all kinds of task in unified text-to-text way)
       - **Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer, 2020, Google (T5)**
+- More opensource model:
+   - **BLOOM: A 176B-Parameter Open-Access Multilingual Language Model, 2022, MetaAI**
+      - In one word: towards democratizing LLM with BLOOM, a 176B-parameter open access decoder only language model
+      - BLOOM traininng details
+         - Datasets
+         - Model architecture
+         - Tokenization
+         - Engineering
+         - Training
+      - Evaluation
+         - SuperGLUE
+         - Machine Translation
+         - Summarization
+         - Code generation
+         - Text embedding representation
+         - Multilingual probing
+   - **LLaMA: Open and Efficient Foundation Language Models, 2022, MetaAI**
+      - In one word: possible to train LLM with publicly avaliable dataset exclusively, with inference budget in consideration
+      - Approach: 
+         - 7 pretraining datasets: publicly available
+            - English CommonCrawl(67%): pre-process with CCNet pipeline
+               - dedup at sentence level
+               - remove non-English pages
+               - filter low-quality content with n-gram
+               - discard pages not classified as Wiki references?!
+            - C4(15%): diverse pre-process CommonCrawl improve performance, pre-process the same as CCNet, except
+               - filter low-quality content by heuristics
+            - Github(4.5%): public Github data from Google BigQuery
+               - filter low quality files by line length or proportion of alphanumeric chars
+               - remove boilerplate
+               - dedup at file level, exact match
+            - Wikipedia(4.5%): June-August 2022 dump
+               - remove hyperlinks, comments, and other formatting boilerplates
+            - Gutenberg and Books(4.5%):
+               - dedup as book level, remove books with 90% content overlap
+            - ArXiv(2.5%)
+               - start from first section, no bibliography
+               - remove comments and inline definition and macros
+            - Stack Exchange(2%)
+               - 28 largest websites kept
+               - remove HTML tags
+               - sort answers by score
+         - Tokenizer: BPE encoding from SentencePiece, 1.4T tokens overall, 2 epoches for Wikipedia and Book tokens
+         - Architecture: 
+            - Encoder only
+            - Pre-normalization: normalize the input of each sublayer of transformer
+            - SwiGLU activation: 4*2/3*d hidden dim. in FFN(PaLM)
+            - Rotary positional embedding(GPTNeo)
+         - Optimizer: 
+            - AdamW with $\beta_1$=0.9, $\beta_2$=0.95
+            - consine learning rate schedule
+            - weight decay 0.1
+            - gradient clip 1.0
+            - 2000 warmup steps, LR varies with batch size
+         - Efficient implementation
+            - not storing attention weights
+            - not computing masked key/query scores
+            - same expensive activations such as output of linear layers, by manually implement the backward function
+            - 380 tokens/sec/GPU on 2048 A100 with 80GB RAM, 1.4T token requires 21 days
+         - Evaluation tasks: 
+            - Common sense reasoning: BoolQ/PIQA/SIQA/HellaSwag/WinnoGrande/ARC easy and challenge/OpenBookQA
+            - Closed-book QA: Natural Question/TriviaQA
+            - Math. reasoning: MATH/GSM8K
+            - Code generation: HumanEval/MBPP
+            - MMLU: perform low, limited amount of books used for pre-training
+         - Bias, Toxicity and Misinformation
+            - RealToxicityPrompts: toxicity increase with increase of model size
+            - CrowS-Pairs: bias evaluation
+            - WinoGender: gender bias
+            - TruthfulQA: truthful and informative
+   - **GLM: General Language Model Pretraining with Autoregressive Blank Infilling, 2022, Tsinghua**
+      - In one word: a general language model based on autoregressive blank infilling objective for the NLU, generation and conditional generation tasks in one model
+      - Methods: 
+         - span infilling as in T5
+         - random span order in autoregression
+         - 2D position defined for span tokens to generate span with no predefined span length
+         - Multi-task pretraining: longer span infilling
+            - Document Level: 50% ~ 100% length of original text as span
+            - Sentence Level: whole sentence as span, sample 15% tokens 
+         - Finetune with classification tasks
+            - Sentiment classification: `{SENTENCE}. It is really [MASK].`
+
+- Distributed training and inference
+   - Data parallel
+      - DDP PyTorch: allreduce
+      - Deepspeed(ZeRO): 
+         - shards optimizer states, gradients, parameters to data parallel workers
+         - each worker updates the local parameters by forward/backward
+         - global parameter and gradient synced by scatter and scatter_reduce in each layer, RAM released for next layer
+      - FSDP: PyTorch offical version of ZeRO, replacement for DDP
+   - Model parallel
+      - Tensor Parallel: horizontal partition
+         - Mesh-Tensorflow: TensorFlow
+         - Megatron-LM: PyTorch
+      - Pipeline Parallel: vertical partition
+         - PipeStream: improve pipeline efficiency by storing multiple copies of weights
+         - TeraPipe: designed for Transformer, pipeline occurs across tokens instead of mini-batch
+   - All in one
+      - ColossalAI
+      - Megatron-Deepspeed
 
 - Instruct Finetuning
    - **SELF-INSTRUCT: Aligning Language Model with Self Generated Instructions, 2022**
@@ -165,6 +288,15 @@ date: 3/2/2023
       - **[Prompt Engineering](https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/), 2023, OpenAI**
    - Parameter efficient tuning
       - **Prefix Tuning: Optimizing Continuous Prompts for Generation, 2021, Stanford** (OK)
+         - **[Code in Github](https://github.com/XiangLi1999/PrefixTuning)**
+            - Autoregressive LM(GPT2) and encoder-decoder architecture(BART)
+            - GPT2 in details: 
+               - based on GPT2 huggingface implementation(oooold version)
+               - hooked in GPT2 by the `past_key_values` arguments in `forward` method
+               - `past_key_values` constructed in the following steps:
+                  - `pre_seq_len` hidden tokens with `n_embd`-dim embedding vector
+                  - embedding vector passed through an MLP with one hidden layer with default size 512, and output size `2 * n_layers * n_emb(=num_head * head_n_embd)`, here `2` for key and value vectors
+                  - shape of `past_key_values`: `(2, batch_size, num_head, seq_len, head_n_embd)`
       - **Prompt Tuning: The Power of Scale for Parameter-Efficient Prompt Tuning, 2021, Google** (OK)
       - **P-tuning/P-tuning V2: Prompt Tuning Can Be Comparable to Fine-tuning Universally Across Scales and Tasks, 2021, Tsinghua** (OK)
       - **Unified View: Towards a unified view of parameter-efficient transfer learning, 2022, CMU** (OK)
@@ -184,9 +316,14 @@ date: 3/2/2023
             - ffn modification utilize the added parameters more effectively than (head-)attention, except for the case with less than 0.1% parameters added
             - scaling composition function better than vanilla additive one
             - Mix-And-Match adapter utilizing the good of Prefix-tuning and Adapter works better
+      - **Intrinsic Dimensionality Explains the Effectiveness of Language Model Fine-Tuning, 2020, Facebook** 
+      - **Revisiting Parameter-Efficient Tuning: Are We Really There Yet?, 2022**
+      - **Parameter-efficient fine-tuning of large-scalepre-trained language models, 2023, Tsinghua**
+      
       - **[LoRA for Stable Diffusion Finetuning](https://huggingface.co/blog/lora)**
          - **[Github](https://github.com/cloneofsimo/lora)**
          - **DreamBooth: Fine Tuning Text-to-Image Diffusion Models for Subject-Driven Generation, 2022, Google**
+            - In one word: personalization of text-to-image diffusion models by finetuning
          - **An Image is Worth One Word: Personalizing Text-to-Image Generation using Textual Inversion, 2022, NVIDIA**
          - **Pivotal Tuning for Latent-based Editing of Real Images, 2021**
          - **[The Illustrated Stable Diffusion](https://jalammar.github.io/illustrated-stable-diffusion/), 2022**
@@ -445,11 +582,31 @@ date: 3/2/2023
                            - every $b$ replay buffer updates period by sampling from the replay buffer
                         - weight loss by affection: $\mathcal{l}(\hat{H}; \textbf{x}, \textbf{y}) = w(t^s, t^e, t^f) (\hat{H}(\textbf{s}, \textbf{a}) - h)^2$
                - **Is reinforcement learning (not) for natural language processing?: Benchmarks, baselines, and building blocks for natural language policy optimization, 2022**
+                  - In one word: solve the problem of stability and lack of open-souce libraries and benchmarks for LM alignments by open-source library RL4LMs the GRUE benchmarks
+                  - RL4LMs open-source library
+                     - generation as a token-level MDP
+                     - a generic interface for per-token and per-sequence generation reward
+                     - On-policy actor-critic algorithms
+                        - value function definition: $V_t^{\pi}=E_{a_t \sim \pi}[ \sum_{\tau=t}^T \gamma^{t-\tau} R(\textbf{s}_{\tau}, a_{\tau}, \textbf{y})]$
+                        - Q-value function: $Q_t^{\pi}(\textbf(s)_t, a_t) = R(\textbf{s}_t, a_t, \textbf{y}) + \gamma E_{s_{t+1} \sim \pi} (V_{t+1}^{\pi} (\textbf{s}_{t+1}))$
+                        - advantage function: $A_t^{\pi} Q_t^{\pi}(\textbf{s}, a) - V_t^{\pi}$
+                        - regularized reward function: $R(\textbf{s}_t, a_t, \textbf{y}) - \beta KL(\pi_{\theta}(a_t|\textbf{s}_t || \pi_i(a_t|\textbf{s}_t)))$
+                  - NLPO algorithm: a *parameterized-masked extension* over PPO
+                     - challange: size of action space is huge, leads to instability to finetune LM with RL
+                     - define a mask policy $\pi_{\psi}$: 
+                        - select the top-p tokens from vocabulary according to $\pi_{\psi}$
+                        - set the prob. of remaining ones to zero when sampling actions from $\pi_{\theta}$, i.e., mask them
+                     - update $\pi_{\psi}$ every $\mu$ iterations
+                  - GRUE benchmark
+                     - 7 generative NLP tasks
+                     - task-specific mix of metrics for each task
+                        - task preference metrics
+                        - naturalness metrics
                - InstructGPT
                - **WebGPT**
                - **Internet-augmented language models through few-shot prompting for open-domain question answering, 2022, Deepmind**
                - **GopherCite: Teaching language models to support answers with verified quotes, 2022**
-                  - In one word: Use RLFH to train *open-book*(to search engine) QA models that generates answers while also *cite* evidence for their claims
+                  - In one word: Use RLHF to train *open-book*(to search engine) QA models that generates answers while also *cite* evidence for their claims
                   - Methods:
                      - Inline evidence syntax(cited answer): `%&<Claim>%(Document title)%[Quote from document]%` , Self-supported Question Answering (SQA)
                      - Pretraining LM, condition on on-the-shelf retrieval system: Gopher & Google
@@ -575,10 +732,11 @@ date: 3/2/2023
             - inference results in structured format with probabilites for bounding-box(obj. detect model) or answer distribution(QA model) etc.
             - LLM summarize the final response, with confidence level
             - Prompts: `With the input and the inference results, the AI assistant needs to describe the process and results. The previous stages can be formed as - User Input: {{ User Input }}, Task Planning: {{ Tasks }}, Model Selection: {{ Model Assignment }}, Task Execution: {{ Predictions }}. You must first answer the user’s request in a straightforward manner. Then describe the task process and show your analysis and model inference results to the user in the first person.  If inference results contain a file path, must tell the user the complete file path.`
-- Multilingual 
+- Multilingual & Multimodel
    - **Few-shot Learning with Multilingual Generative Language Models, 2022, Meta AI**
    - **PaLM-E: An Embodied Multimodal Language Model, 2023, Google Research**
    - **MM-REACT: Prompting ChatGPT for Multimodal Reasoning and Action, 2023, Microsoft Azure**
+   - **A Generalist Agent, 2022, Google Deepmind**
 - Alignments
    - **In conversation with Artificial Intelligence: aligning language models with human values, 2022, Google/DeepMind**
 - DNN

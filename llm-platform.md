@@ -35,6 +35,13 @@ date: 3/13/2023
 - [TRLX](https://github.com/CarperAI/trlx)
 - [trl with peft demo](https://huggingface.co/blog/trl-peft)
 
+# Deepspeed
+- [Deepspeed Github](https://github.com/microsoft/DeepSpeed)
+
+# ColossalAI
+- [Colossal Homepage](https://colossalai.org/)
+- [Colossal Github](https://github.com/hpcaitech/ColossalAI)
+
 # Microsoft's Azure
 
 # AI21
