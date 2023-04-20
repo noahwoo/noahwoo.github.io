@@ -127,6 +127,7 @@ date: 3/2/2023
          - reject unknown/illegal/unethical question
    - ChatGPT Plugins
       - [An end-to-end 3'rd demo](https://techcommunity.microsoft.com/t5/fasttrack-for-azure/how-chatgpt-plugins-could-work/ba-p/3761483)
+
 - Google Research/Brain/DeepMind: 
    - BERT series: 
       - **BERT: Pre-training of deep bidirectional transformers for language understanding, 2019, Google** (OK)
@@ -150,6 +151,7 @@ date: 3/2/2023
       - **Scaling Language Models: Methods, Analysis & Insights from Training Gopher, 2022, (Google/DeepMind)**
    - T5 series: (training all kinds of task in unified text-to-text way)
       - **Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer, 2020, Google (T5)**
+
 - More opensource model:
    - **BLOOM: A 176B-Parameter Open-Access Multilingual Language Model, 2022, MetaAI**
       - In one word: towards democratizing LLM with BLOOM, a 176B-parameter open access decoder only language model
@@ -239,13 +241,27 @@ date: 3/2/2023
          - shards optimizer states, gradients, parameters to data parallel workers
          - each worker updates the local parameters by forward/backward
          - global parameter and gradient synced by all-gather and reduce-scatter in each layer, RAM released for next layer
-      - FSDP: PyTorch offical version of ZeRO, replacement for DDP
+      - FSDP: PyTorch offical version of ZeRO, replacement for DDP, pesudo-code in nutshell:
+   ```
+                  forward pass :
+                  for layer_i in layers:
+                     all-gather full weights for layer_i
+                     forward pass for layer_i
+                     discard full weights for layer_i
+                  backward pass:
+                  for layer_i in layers:
+                     all-gather full weights for layer_i
+                     backward pass for layer_i
+                     discard full weights for layer_i
+                     reduce-scatter gradients for layer_i
+   ```
    - Model parallel
       - Tensor Parallel: horizontal partition
          - Mesh-Tensorflow: TensorFlow
          - Megatron-LM: PyTorch
       - Pipeline Parallel: vertical partition
-         - PipeStream: improve pipeline efficiency by storing multiple copies of weights
+         - Gpipe: 
+         - PipeDream: improve pipeline efficiency by storing multiple copies of weights
          - TeraPipe: designed for Transformer, pipeline occurs across tokens instead of mini-batch
    - All in one
       - ColossalAI
@@ -533,19 +549,6 @@ date: 3/2/2023
             - Bootstrapping: prompt LM to reason or act in few shot setup with final prediction, examples lead to incorrect prediction removed, initial LM fine-tuned on correct examples 
                - **STaR: Self-taught reasoner bootstrapping reasoning with reasoning, 2022**
                - **Talm: Tool augmented language models, 2022**
-                  - In In one word: text-only approach to augument LM with non-differential tools, self-play technique to bootstrap performance with few tool usage demonstrations at the beginning
-                  - Methods:
-                     - Task and tool interface: *task input text |tool-call too input text |result tool output text |output task output text*
-                     - Self-play: 
-                        1. start with bootstrap set $D = \{(x_j, t_j, r_j, y_j)\}$
-                        2. finetune LM with $D$
-                        3. for each examples in task, sample tool & input($t_j$), call tool to get the result, sample task output
-                           - use high temperature(1.0) and sample size (topk=40) to explore text of diverse tool API invocation 
-                        4. if task output match target $y_j$ within threshold, add $(x_j, t_j, r_j, y_j)$ to D
-                        5. goto step 2
-                     - RL analogy:
-                        - policy-gradient with LM as policy $\pi(t_j|\theta)$
-                        - policy gradient with a binary reward for matching target $y_j$
          - Reinforcement Learning
             - Human preference data(ranking/like/dislike): from SFT to RL
             - Most RL work teach LM to act rather than reason(besides STaR)
@@ -556,159 +559,193 @@ date: 3/2/2023
                - **Regen: Reinforcement learning for text and knowledge base generation using pretrained language models, 2021**
             - Human feedback(RLFH): Alignment
                - **TAMER: Training an agent manually via evaluative reinforcement, 2008**
-                  - In one word: allows a human to train a learning agent to perform a common class of complex tasks by giving scalar reward signal for agent's observed actions
-                  - Methods: MDP\R paradigm
-                     - use supervised learning method to model human's reward
-                     - act greedily according to this model
-                     - action represented by state features changes: $\Delta f_{t+1,t} = \overrightarrow{f_{t+1,a}} - \overrightarrow{f_{t}}$
-                     - reward modeled by linear combination of action features
-                     - reward model updated online by each feedback from human
-                     - action with maximal current estimated reward selected (reward model act as the policy)
-                  - More notes
-                     - in domains in which human have intuition or expertise, necessary to transfer the knowledge to learning agent, by the means of judging the agent's action
-                     - TAMER agent greedily maximize the immediate return, leave long-term implications to human judger
-                     - human rewards are moving target and even personalized for human serving agent
-                     - human and environment reward can be combined
-                  - Results: a decent policy for Teris with 3 round games
                - **Deep TAMER: Interactive agent shaping in high-dimensional state spaces, 2018**
-                  - In one word: an extension of TAMER that leverages the representation power of DNN to learn complex tasks in a short amount of time with human trainer
-                  - Methods(differences to TAMER): 
-                     - choice of the function class to represent feedback from human
-                        - Pretrained Autoencoder(AE) used to project the input(image) into low dimensional space
-                        - 2-layers FC with 16 hidden units, one output node for each action
-                     - optimization algorithms to train the agent
-                        - decouple training updates and human feedback, a feedback replay buffer used, updating when
-                           - human feedback observed, compute loss for all history states within the period of feedback has affection
-                           - every $b$ replay buffer updates period by sampling from the replay buffer
-                        - weight loss by affection: $\mathcal{l}(\hat{H}; \textbf{x}, \textbf{y}) = w(t^s, t^e, t^f) (\hat{H}(\textbf{s}, \textbf{a}) - h)^2$
                - **Is reinforcement learning (not) for natural language processing?: Benchmarks, baselines, and building blocks for natural language policy optimization, 2022**
-                  - In one word: solve the problem of stability and lack of open-souce libraries and benchmarks for LM alignments by open-source library RL4LMs the GRUE benchmarks
-                  - RL4LMs open-source library
-                     - generation as a token-level MDP
-                     - a generic interface for per-token and per-sequence generation reward
-                     - On-policy actor-critic algorithms
-                        - value function definition: $V_t^{\pi}=E_{a_t \sim \pi}[ \sum_{\tau=t}^T \gamma^{t-\tau} R(\textbf{s}_{\tau}, a_{\tau}, \textbf{y})]$
-                        - Q-value function: $Q_t^{\pi}(\textbf(s)_t, a_t) = R(\textbf{s}_t, a_t, \textbf{y}) + \gamma E_{s_{t+1} \sim \pi} (V_{t+1}^{\pi} (\textbf{s}_{t+1}))$
-                        - advantage function: $A_t^{\pi} Q_t^{\pi}(\textbf{s}, a) - V_t^{\pi}$
-                        - regularized reward function: $R(\textbf{s}_t, a_t, \textbf{y}) - \beta KL(\pi_{\theta}(a_t|\textbf{s}_t || \pi_i(a_t|\textbf{s}_t)))$
-                  - NLPO algorithm: a *parameterized-masked extension* over PPO
-                     - challange: size of action space is huge, leads to instability to finetune LM with RL
-                     - define a mask policy $\pi_{\psi}$: 
-                        - select the top-p tokens from vocabulary according to $\pi_{\psi}$
-                        - set the prob. of remaining ones to zero when sampling actions from $\pi_{\theta}$, i.e., mask them
-                     - update $\pi_{\psi}$ every $\mu$ iterations
-                  - GRUE benchmark
-                     - 7 generative NLP tasks
-                     - task-specific mix of metrics for each task
-                        - task preference metrics
-                        - naturalness metrics
                - InstructGPT
                - **WebGPT**
                - **Internet-augmented language models through few-shot prompting for open-domain question answering, 2022, Deepmind**
                - **GopherCite: Teaching language models to support answers with verified quotes, 2022**
-                  - In one word: Use RLHF to train *open-book*(to search engine) QA models that generates answers while also *cite* evidence for their claims
-                  - Methods:
-                     - Inline evidence syntax(cited answer): `%&<Claim>%(Document title)%[Quote from document]%` , Self-supported Question Answering (SQA)
-                     - Pretraining LM, condition on on-the-shelf retrieval system: Gopher & Google
-                     - Training pipelines: 
-                        1. Collect cited answers from best current model, have it labeled by human
-                           - bootstrap with few-shot prompting for base Gopher model in first round
-                              - (constrained)sampling tens of thousands cited answers from prompted Gopher, ask human to annotate the high-quality ones
-                           - collect high quality `<question, cited answer>` pairs from human
-                              - a question and two candidates answers with cite
-                              - check whether each answers is *Plausible* to the question and *Supported* by the quote evidence
-                        2. Train supervised finetuning(SFT) model, teach model to produce verbatim quotes in evidence syntax
-                           - only *Rated-Good*(Plausible and Supported) examples used for training
-                           - predict with retrieved documents and question as prompt
-                              - prompt template: `{Instruction}\n [Page: {title} \n {documents}\n]+ Question: {question}\n Answer:`
-                           - train with uniform random number of retrieved documents to prompt Gopher within 4096 tokens limits, each document truncated with text surrounding the snippet of search engine
-                        3. Train a Reward Model(RM) for a scalar *overall quality* label
-                           - loss: average of the pairwise preference prediction loss and the Supported&Plausible response prediction loss
-                           - warm-start from pretrained 7B LM from Gopher family
-                           - RM used in inference: rerank of candidate response, SFT+top@N or RL+top@N
-                        4. RLFH against the Reword Model
-                           - maximize the reward model: $E_{P_r(x)}[r(x,y)]$
-                           - algorithm: A2C with KL divergence between $P_r(x)$ and initial next-tokens distribution
-                           - initialization: SFT model in Step-2
-                           - freeze 60% of layers, share parameters between policy and value function
-                           - introduce a *bad-syntax penalty* rules
-                        5. Repeat from Step-1 
-                     - Declining to answer 
-                        - use global score of Reward Model as the criteria for answer, decline if lower than a threshold
-                  - Tricks in high quality human annotations:
-                     - *super star* model with 85% aggreement on researchers in Plausible and Supported
-                     - attention check: further training to rater before experiments, screen out raters with too many incorrect answers
-                     - multiple raters: 3 for super rater pool, 6 for wider pool of raters
-                  - Ablation findings
-                     - Rerank with RM improve performance over SFT
-                     - RL improve performance over naive SFT or RL agent decoding with a single sample
-                     - In rerank regime, SFT outperforms RL in *NaturalQuestions* task
-                        - RL reduce the diversity of sampled answers, dimishing the benefits of reranking from large sampling
-                        - finetune biased to *ELI5* tasks by design
                - **Toolformer: Language models can teach themselves to use tools, 2023**
-                  - In one word: a model trained to decide which APIs to call, when to call them, what arguments to pass, and how to best incorporate them for the next token prediction
-                  - Methods: 5 steps involved
-                     1. Sampling API calls from LM with specific prompt $P(\textbf{x})$ for each tool
-                        - sampling top-$k$ positions according to $p_M(<API>|P(\textbf{x}), x_{1:i})$
-                        - for each position, sampling upto $m$ API calls
-                     2. Executes API calls: obtain $m$*$k$ response text
-                     3. Filtering API calls: by loss reduction threshold $T_f$
-                        - Loss: $L_i(\textbf{z}) = - \sum_{j=i}^{n} w_{j-i} \cdot \log p_M(x_j | \textbf{z}, \textbf{x}_{1:j-1})$
-                        - Loss reduction: $\min (L_i(\epsilon), L_i(e(c_i, \epsilon))) - L_i(e(c_i, r_i)) \gt T_f$ 
-                        - $e(c_i, r_i) := [a_c(i_c)->r]$
-                     4. Model finetuning: 
-                        - augument $\textbf{x} \in C$ with API calls: ($\textbf{x}_{1:i}, e(c_i, r_i), \textbf{x}_{i+1:n}$)
-                        - finetune with augumented corpus
-                     5. Prediction:
-                        - decode as usual, when generating '->', call API to fill the next token followed by ']', the continue the decoding process
-                  - Tools tested:
-                     - Question Answering:
-                        - **Atlas: Few-shot Learning with Retrieval Augmented Language Models, 2022, MetaAI**
-                           - In one word: 
-                              - a carefully designed and pre-trained retrieval augmented language model able to learn knowledge intensive tasks with very few training examples
-                           - Investigate two questions
-                              - whether few-shot learning ability requies models to store a large amount of information in their parameters
-                              - if memorisation can be decoupled from generalization
-                           - Methods: language model and dense retriever
-                              - Retriever: a dual-decoder architecture (Contriever), pretrained using MoCo constrastive loss
-                              - Language model: T5 seq2seq architecture, with Fusion-in-Decoder modification
-                                 - concatenate the outputs of encoder from different documents, perform cross-attention over the single sequence in decoder
-                              - Four training objectives tested
-                                 - Attention distrillation: cross-attention scores as proxy for documents importance in LM
-                                    - retrieval distribution: $p_{RETR}(\textbf{d}|\textbf{q})=\frac{exp(s(\textbf{d},\textbf{q})/\theta)}{\sum_k exp(s(\textbf{d}_k,\textbf{q})/\theta)}$
-                                    - attention disbribution: $p_{ATTN}(\textbf{d}|\textbf{q})=softmax(\{AVG(\alpha_n \|v_n\|)_d\})$
-                                    - KL distance between the above two distributions as loss
-                                 - End-to-end training of Multi-Document Reader and Retriever: 
-                                    - $\log [ \sum_{k=1}^K p_{LM}(\textbf{a}|\textbf{q}, \textbf{d}_k) p_{RETR(\textbf{d}_k|\textbf{q})} ]$
-                                 - **Perplexity distrillation**: change attention distribution to
-                                    - $p_{PERP}(\textbf{d}|\textbf{q})=softmax(\{ \log p_{LM}(\textbf{a} | \textbf{d}_k, \textbf{q}) \}_k)$
-                                 - Leave-one-out Perplexity Distillation: complementary to perplexity distrillation
-                              - Three pretext(pretraining) tasks: jointly training of retriever and language modeling, initialized parameters from $\textbf{Contriever}$ and $\textbf{T5-lm-adapt}$ respectively
-                                 - Prefix language modeling
-                                 - Masked language modeling
-                                 - Title to section generation
-                              - Efficient retriever finetuning: alleviating the need to re-computing the index whenever documents embedding updated
-                                 - Full index update at every $R$ training steps(batches): 30% overhead compared to LM training only
-                                 - Rerank the top $L$ documents with latest embedding index, select top $K$, 10% overhead
-                                 - Query-side finetuning: decouple the encoding of the queries and documents
-                                    - performance varies when large training dataset available
-                                    - in few-shot settings, no performance degrade observed, even better
-                              - Datasets & experiments: 
-                                 - Datasets: Knowledge Intensive Language Tasks/Massively-Multitask Language Understanding
-                                 - Pretraing: pretrain for 10,000 steps, updates index every 1000 steps.
-                                    - Datasets: 
-                                       - 11/20/2021 Wikipedia dump, 37M passages, 78 words in average
-                                       - 2020-10 Common Crawl dump, 350M passages
-                                 - Finetuning: fixed iteration steps adapted to downstream tasks
-                     - Calculator
-                     - Wikipedia Search: BM25 retrieval on the indexes of Wikepedia dump
-                     - Machine Translation System
-                     - Calendar
       - Discussion
          - **Looped transformers as programmable computers, 2023**
          - **A path towards autonomous machine intelligence, 2022, Lecun**
          - **Language models (mostly) know what they know, 2022**
          - **React: Synergizing reasoning and acting in language models, 2022**
+   - **Talm: Tool augmented language models, 2022**
+      - In one word: text-only approach to augument LM with non-differential tools, self-play technique to bootstrap performance with few tool usage demonstrations at the beginning
+      - Methods:
+         - Task and tool interface: *task input text |tool-call too input text |result tool output text |output task output text*
+         - Self-play: 
+            1. start with bootstrap set $D = \{(x_j, t_j, r_j, y_j)\}$
+            2. finetune LM with $D$
+            3. for each examples in task, sample tool & input($t_j$), call tool to get the result, sample task output
+               - use high temperature(1.0) and sample size (topk=40) to explore text of diverse tool API invocation 
+            4. if task output match target $y_j$ within threshold, add $(x_j, t_j, r_j, y_j)$ to D
+            5. goto step 2
+         - RL analogy:
+            - policy-gradient with LM as policy $\pi(t_j|\theta)$
+            - policy gradient with a binary reward for matching target $y_j$
+   - **GopherCite: Teaching language models to support answers with verified quotes, 2022**
+      - In one word: Use RLHF to train *open-book*(to search engine) QA models that generates answers while also *cite* evidence for their claims
+      - Methods:
+         - Inline evidence syntax(cited answer): `%&<Claim>%(Document title)%[Quote from document]%` , Self-supported Question Answering (SQA)
+         - Pretraining LM, condition on on-the-shelf retrieval system: Gopher & Google
+         - Training pipelines: 
+            1. Collect cited answers from best current model, have it labeled by human
+               - bootstrap with few-shot prompting for base Gopher model in first round
+                  - (constrained)sampling tens of thousands cited answers from prompted Gopher, ask human to annotate the high-quality ones
+               - collect high quality `<question, cited answer>` pairs from human
+                  - a question and two candidates answers with cite
+                  - check whether each answers is *Plausible* to the question and *Supported* by the quote evidence
+            2. Train supervised finetuning(SFT) model, teach model to produce verbatim quotes in evidence syntax
+               - only *Rated-Good*(Plausible and Supported) examples used for training
+               - predict with retrieved documents and question as prompt
+                  - prompt template: `{Instruction}\n [Page: {title} \n {documents}\n]+ Question: {question}\n Answer:`
+               - train with uniform random number of retrieved documents to prompt Gopher within 4096 tokens limits, each document truncated with text surrounding the snippet of search engine
+            3. Train a Reward Model(RM) for a scalar *overall quality* label
+               - loss: average of the pairwise preference prediction loss and the Supported&Plausible response prediction loss
+               - warm-start from pretrained 7B LM from Gopher family
+               - RM used in inference: rerank of candidate response, SFT+top@N or RL+top@N
+            4. RLFH against the Reword Model
+               - maximize the reward model: $E_{P_r(x)}[r(x,y)]$
+               - algorithm: A2C with KL divergence between $P_r(x)$ and initial next-tokens distribution
+               - initialization: SFT model in Step-2
+               - freeze 60% of layers, share parameters between policy and value function
+               - introduce a *bad-syntax penalty* rules
+            5. Repeat from Step-1 
+         - Declining to answer 
+            - use global score of Reward Model as the criteria for answer, decline if lower than a threshold
+      - Tricks in high quality human annotations:
+         - *super star* model with 85% aggreement on researchers in Plausible and Supported
+         - attention check: further training to rater before experiments, screen out raters with too many incorrect answers
+         - multiple raters: 3 for super rater pool, 6 for wider pool of raters
+      - Ablation findings
+         - Rerank with RM improve performance over SFT
+         - RL improve performance over naive SFT or RL agent decoding with a single sample
+         - In rerank regime, SFT outperforms RL in *NaturalQuestions* task
+            - RL reduce the diversity of sampled answers, dimishing the benefits of reranking from large sampling
+            - finetune biased to *ELI5* tasks by design
+   - **Toolformer: Language models can teach themselves to use tools, 2023**
+      - In one word: a model trained to decide which APIs to call, when to call them, what arguments to pass, and how to best incorporate them for the next token prediction
+      - Methods: 5 steps involved
+         1. Sampling API calls from LM with specific prompt $P(\textbf{x})$ for each tool
+            - sampling top-$k$ positions according to $p_M(<API>|P(\textbf{x}), x_{1:i})$
+            - for each position, sampling upto $m$ API calls
+         2. Executes API calls: obtain $m$*$k$ response text
+         3. Filtering API calls: by loss reduction threshold $T_f$
+            - Loss: $L_i(\textbf{z}) = - \sum_{j=i}^{n} w_{j-i} \cdot \log p_M(x_j | \textbf{z}, \textbf{x}_{1:j-1})$
+            - Loss reduction: $\min (L_i(\epsilon), L_i(e(c_i, \epsilon))) - L_i(e(c_i, r_i)) \gt T_f$ 
+            - $e(c_i, r_i) := [a_c(i_c)->r]$
+         4. Model finetuning: 
+            - augument $\textbf{x} \in C$ with API calls: ($\textbf{x}_{1:i}, e(c_i, r_i), \textbf{x}_{i+1:n}$)
+            - finetune with augumented corpus
+         5. Prediction:
+            - decode as usual, when generating '->', call API to fill the next token followed by ']', the continue the decoding process
+      - Tools tested:
+         - Question Answering:
+   - **TAMER: Training an agent manually via evaluative reinforcement, 2008**
+      - In one word: allows a human to train a learning agent to perform a common class of complex tasks by giving scalar reward signal for agent's observed actions
+      - Methods: MDP\R paradigm
+         - use supervised learning method to model human's reward
+         - act greedily according to this model
+         - action represented by state features changes: $\Delta f_{t+1,t} = \overrightarrow{f_{t+1,a}} - \overrightarrow{f_{t}}$
+         - reward modeled by linear combination of action features
+         - reward model updated online by each feedback from human
+         - action with maximal current estimated reward selected (reward model act as the policy)
+      - More notes
+         - in domains in which human have intuition or expertise, necessary to transfer the knowledge to learning agent, by the means of judging the agent's action
+         - TAMER agent greedily maximize the immediate return, leave long-term implications to human judger
+         - human rewards are moving target and even personalized for human serving agent
+         - human and environment reward can be combined
+      - Results: a decent policy for Teris with 3 round games
+   - **Deep TAMER: Interactive agent shaping in high-dimensional state spaces, 2018**
+      - In one word: an extension of TAMER that leverages the representation power of DNN to learn complex tasks in a short amount of time with human trainer
+      - Methods(differences to TAMER): 
+         - choice of the function class to represent feedback from human
+            - Pretrained Autoencoder(AE) used to project the input(image) into low dimensional space
+            - 2-layers FC with 16 hidden units, one output node for each action
+         - optimization algorithms to train the agent
+            - decouple training updates and human feedback, a feedback replay buffer used, updating when
+               - human feedback observed, compute loss for all history states within the period of feedback has affection
+               - every $b$ replay buffer updates period by sampling from the replay buffer
+            - weight loss by affection: $\mathcal{l}(\hat{H}; \textbf{x}, \textbf{y}) = w(t^s, t^e, t^f) (\hat{H}(\textbf{s}, \textbf{a}) - h)^2$
+   - **Is reinforcement learning (not) for natural language processing?: Benchmarks, baselines, and building blocks for natural language policy optimization, 2022**
+      - In one word: solve the problem of stability and lack of open-souce libraries and benchmarks for LM alignments by open-source library RL4LMs the GRUE benchmarks
+      - RL4LMs open-source library
+         - generation as a token-level MDP
+         - a generic interface for per-token and per-sequence generation reward
+         - On-policy actor-critic algorithms
+            - value function definition: $V_t^{\pi}=E_{a_t \sim \pi}[ \sum_{\tau=t}^T \gamma^{t-\tau} R(\textbf{s}_{\tau}, a_{\tau}, \textbf{y})]$
+            - Q-value function: $Q_t^{\pi}(\textbf(s)_t, a_t) = R(\textbf{s}_t, a_t, \textbf{y}) + \gamma E_{s_{t+1} \sim \pi} (V_{t+1}^{\pi} (\textbf{s}_{t+1}))$
+            - advantage function: $A_t^{\pi} Q_t^{\pi}(\textbf{s}, a) - V_t^{\pi}$
+            - regularized reward function: $R(\textbf{s}_t, a_t, \textbf{y}) - \beta KL(\pi_{\theta}(a_t|\textbf{s}_t || \pi_i(a_t|\textbf{s}_t)))$
+      - NLPO algorithm: a *parameterized-masked extension* over PPO
+         - challange: size of action space is huge, leads to instability to finetune LM with RL
+         - define a mask policy $\pi_{\psi}$: 
+            - select the top-p tokens from vocabulary according to $\pi_{\psi}$
+            - set the prob. of remaining ones to zero when sampling actions from $\pi_{\theta}$, i.e., mask them
+         - update $\pi_{\psi}$ every $\mu$ iterations
+      - GRUE benchmark
+         - 7 generative NLP tasks
+         - task-specific mix of metrics for each task
+            - task preference metrics
+            - naturalness metrics
+   - **Atlas: Few-shot Learning with Retrieval Augmented Language Models, 2022, MetaAI**
+      - In one word: 
+         - a carefully designed and pre-trained retrieval augmented language model able to learn knowledge intensive tasks with very few training examples
+      - Investigate two questions
+         - whether few-shot learning ability requies models to store a large amount of information in their parameters
+         - if memorisation can be decoupled from generalization
+      - Methods: language model and dense retriever
+         - Retriever: a dual-decoder architecture (Contriever), pretrained using MoCo constrastive loss
+         - Language model: T5 seq2seq architecture, with Fusion-in-Decoder modification
+            - concatenate the outputs of encoder from different documents, perform cross-attention over the single sequence in decoder
+         - Four training objectives tested
+            - Attention distrillation: cross-attention scores as proxy for documents importance in LM
+               - retrieval distribution: $p_{RETR}(\textbf{d}|\textbf{q})=\frac{exp(s(\textbf{d},\textbf{q})/\theta)}{\sum_k exp(s(\textbf{d}_k,\textbf{q})/\theta)}$
+               - attention disbribution: $p_{ATTN}(\textbf{d}|\textbf{q})=softmax(\{AVG(\alpha_n \|v_n\|)_d\})$
+               - KL distance between the above two distributions as loss
+            - End-to-end training of Multi-Document Reader and Retriever: 
+               - $\log [ \sum_{k=1}^K p_{LM}(\textbf{a}|\textbf{q}, \textbf{d}_k) p_{RETR(\textbf{d}_k|\textbf{q})} ]$
+            - **Perplexity distrillation**: change attention distribution to
+               - $p_{PERP}(\textbf{d}|\textbf{q})=softmax(\{ \log p_{LM}(\textbf{a} | \textbf{d}_k, \textbf{q}) \}_k)$
+            - Leave-one-out Perplexity Distillation: complementary to perplexity distrillation
+         - Three pretext(pretraining) tasks: jointly training of retriever and language modeling, initialized parameters from $\textbf{Contriever}$ and $\textbf{T5-lm-adapt}$ respectively
+            - Prefix language modeling
+            - Masked language modeling
+            - Title to section generation
+         - Efficient retriever finetuning: alleviating the need to re-computing the index whenever documents embedding updated
+            - Full index update at every $R$ training steps(batches): 30% overhead compared to LM training only
+            - Rerank the top $L$ documents with latest embedding index, select top $K$, 10% overhead
+            - Query-side finetuning: decouple the encoding of the queries and documents
+               - performance varies when large training dataset available
+               - in few-shot settings, no performance degrade observed, even better
+         - Datasets & experiments: 
+            - Datasets: Knowledge Intensive Language Tasks/Massively-Multitask Language Understanding
+            - Pretraing: pretrain for 10,000 steps, updates index every 1000 steps.
+               - Datasets: 
+                  - 11/20/2021 Wikipedia dump, 37M passages, 78 words in average
+                  - 2020-10 Common Crawl dump, 350M passages
+            - Finetuning: fixed iteration steps adapted to downstream tasks
+   - **Toolformer: Language models can teach themselves to use tools, 2023**
+      - In one word: a model trained to decide which APIs to call, when to call them, what arguments to pass, and how to best incorporate them for the next token prediction
+      - Methods: 5 steps involved
+         1. Sampling API calls from LM with specific prompt $P(\textbf{x})$ for each tool
+            - sampling top-$k$ positions according to $p_M(<API>|P(\textbf{x}), x_{1:i})$
+            - for each position, sampling upto $m$ API calls
+         2. Executes API calls: obtain $m$*$k$ response text
+         3. Filtering API calls: by loss reduction threshold $T_f$
+            - Loss: $L_i(\textbf{z}) = - \sum_{j=i}^{n} w_{j-i} \cdot \log p_M(x_j | \textbf{z}, \textbf{x}_{1:j-1})$
+            - Loss reduction: $\min (L_i(\epsilon), L_i(e(c_i, \epsilon))) - L_i(e(c_i, r_i)) \gt T_f$ 
+            - $e(c_i, r_i) := [a_c(i_c)->r]$
+         4. Model finetuning: 
+            - augument $\textbf{x} \in C$ with API calls: ($\textbf{x}_{1:i}, e(c_i, r_i), \textbf{x}_{i+1:n}$)
+            - finetune with augumented corpus
+         5. Prediction:
+            - decode as usual, when generating '->', call API to fill the next token followed by ']', the continue the decoding process
+      - Tools tested:
+         - Question Answering:
+                              
    - **HuggingGPT: Solving AI Tasks with ChatGPT and its Friends in HuggingFace, 2023, MSRA**
       - In one word: a system that leverages LLMs to connect various AI models in Huggingface to solve multi-modal AI tasks
       - Methods: four steps in all
@@ -732,12 +769,16 @@ date: 3/2/2023
             - inference results in structured format with probabilites for bounding-box(obj. detect model) or answer distribution(QA model) etc.
             - LLM summarize the final response, with confidence level
             - Prompts: `With the input and the inference results, the AI assistant needs to describe the process and results. The previous stages can be formed as - User Input: {{ User Input }}, Task Planning: {{ Tasks }}, Model Selection: {{ Model Assignment }}, Task Execution: {{ Predictions }}. You must first answer the user’s request in a straightforward manner. Then describe the task process and show your analysis and model inference results to the user in the first person.  If inference results contain a file path, must tell the user the complete file path.`
+   - **Tool Learning with Foundation Models, 2023, Tsinghua**
+
 - Multilingual & Multimodel
    - **Few-shot Learning with Multilingual Generative Language Models, 2022, Meta AI**
    - **PaLM-E: An Embodied Multimodal Language Model, 2023, Google Research**
    - **MM-REACT: Prompting ChatGPT for Multimodal Reasoning and Action, 2023, Microsoft Azure**
    - **A Generalist Agent, 2022, Google Deepmind**
+
 - Alignments
    - **In conversation with Artificial Intelligence: aligning language models with human values, 2022, Google/DeepMind**
+
 - DNN
    - **[Anatomize Deep Learning with Information Theory](https://lilianweng.github.io/posts/2017-09-28-information-bottleneck/)**
