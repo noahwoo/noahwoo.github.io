@@ -70,47 +70,49 @@ date: 3/2/2023
    - **[In-context Learning and Induction Heads](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html)**
 
 - OpenAI GPT series: 
-   - GPT-1: **Improving Language Understanding by Generative Pre-Training, 2018, OpenAI** (OK)
-   - GPT-2: **Language Models are Unsupervised Multitask Learners, 2019, OpenAI** (OK)
-   - GPT-3: **Language Models are Few-Shot Learners, 2020, OpenAI** (OK)
-   - **InstructGPT: Training language models to follow instructions with human feedback, 2022, OpenAI** (OK)
+   - GPT-1: **Improving Language Understanding by Generative Pre-Training, 2018, OpenAI**
+   - GPT-2: **Language Models are Unsupervised Multitask Learners, 2019, OpenAI**
+   - GPT-3: **Language Models are Few-Shot Learners, 2020, OpenAI**
+   - **InstructGPT: Training language models to follow instructions with human feedback, 2022, OpenAI**
       - Reference:
          - **Deep Reinforcement Learning from Human Preferences, 2020, Deepmind/OpenAI**
          - **Fine-Tuning Language Models from Human Preferences, 2020, OpenAI**
-            - Tasks: Stylistic continuation(in sentiment or genre) and Summarization
-            - Optimize over $(x, {y_i}, b)$, LogLikelihood
-            - Logits consist of reward from LM $r(x,y)$ and KL dist. between new and old model
-            - experiments:
-               - summarization: pretrain 774M GPT-2 LM, then RL fine-tune
-               - stylistic continuation: train with WebText from scrath, SFT on BookCorpus, then RL fine-tune
          - **Learning to summarize from human feedback, 2021, OpenAI**
-            - Goal: advance methods for training language models on objectives that more closely capture the behavior we care about. 
-            - Task: Text summarization on Reddit TL;DR dataset
-            - Annotation quality: aggreement level between labeler and researcher
-               - charge by working hours instead of # of annotated samples.
-               - hands-on with annotators closely
-               - a detailed procedure for anotation
-            - Four steps in loop
-               - pre-trained model: 
-                  - Corpus: C4/Webtext/books/Wikipedia
-                  - 1~3 epoch on each, 300B tokens, context 2048
-               - supervised model
-                  - predict summary from Reddit summaries
-                  - initialized from pre-trained model, cosine LR schedule, log lineear sweep
-                  - batch size 128
-                  - sampling with T=0 for pair-wise evaluaiton by human
-                  - supervised model outperform SOTA on ROUGE score of CNN/DM dataset
-               - reward model
-                  - initialized from supervised model, replace the decoding matrix with a linear head to output scalar value
-                  - use pair-wise loss of preferred summary to unpreferred one
-               - Reinforcement Learning from Human Feedback
-                  - use separated transformer parameters for policy and value networks
-                  - BPE token generation as each step of episode, final reward model score as part of the RL Reward
-                  - KL distance between policy and init. supervised model also included in final Reward
-                  - policy network initialized with supervised model
-                  - value network initialized with reward model
-            - Results & Conclusions
-         - **Instruct-tuning: Finetuned language models are zero-shot learners, 2022, Google** (OK)
+         - **Instruct-tuning: Finetuned language models are zero-shot learners, 2022, Google**
+   - **Fine-Tuning Language Models from Human Preferences, 2020, OpenAI**
+      - Tasks: Stylistic continuation(in sentiment or genre) and Summarization
+      - Optimize over $(x, {y_i}, b)$, LogLikelihood
+      - Logits consist of reward from LM $r(x,y)$ and KL dist. between new and old model
+      - experiments:
+         - summarization: pretrain 774M GPT-2 LM, then RL fine-tune
+         - stylistic continuation: train with WebText from scrath, SFT on BookCorpus, then RL fine-tune
+   - **Learning to summarize from human feedback, 2021, OpenAI**
+      - Goal: advance methods for training language models on objectives that more closely capture the behavior we care about. 
+      - Task: Text summarization on Reddit TL;DR dataset
+      - Annotation quality: aggreement level between labeler and researcher
+         - charge by working hours instead of # of annotated samples.
+         - hands-on with annotators closely
+         - a detailed procedure for anotation
+      - Four steps in loop
+         - pre-trained model: 
+            - Corpus: C4/Webtext/books/Wikipedia
+            - 1~3 epoch on each, 300B tokens, context 2048
+         - supervised model
+            - predict summary from Reddit summaries
+            - initialized from pre-trained model, cosine LR schedule, log lineear sweep
+            - batch size 128
+            - sampling with T=0 for pair-wise evaluaiton by human
+            - supervised model outperform SOTA on ROUGE score of CNN/DM dataset
+         - reward model
+            - initialized from supervised model, replace the decoding matrix with a linear head to output scalar value
+            - use pair-wise loss of preferred summary to unpreferred one
+         - Reinforcement Learning from Human Feedback
+            - use separated transformer parameters for policy and value networks
+            - BPE token generation as each step of episode, final reward model score as part of the RL Reward
+            - KL distance between policy and init. supervised model also included in final Reward
+            - policy network initialized with supervised model
+            - value network initialized with reward model
+      - Results & Conclusions   
    - Intelligence in GPT series
       - GPT-3: (davinci)
          - generation ability
@@ -236,36 +238,42 @@ date: 3/2/2023
 
 - Distributed training and inference
    - Data parallel
-      - DDP PyTorch: all-reduce
-      - Deepspeed(ZeRO): 
+      - **[DDP PyTorch](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html)**: 
+         - In one word: all-reduce after back-propagation
+      - **ZeRO: Memory Optimizations Toward Training Trillion Parameter Models, 2019**
          - shards optimizer states, gradients, parameters to data parallel workers
          - each worker updates the local parameters by forward/backward
          - global parameter and gradient synced by all-gather and reduce-scatter in each layer, RAM released for next layer
-      - FSDP: PyTorch offical version of ZeRO, replacement for DDP, pesudo-code in nutshell:
-   ```
-                  forward pass :
-                  for layer_i in layers:
-                     all-gather full weights for layer_i
-                     forward pass for layer_i
-                     discard full weights for layer_i
-                  backward pass:
-                  for layer_i in layers:
-                     all-gather full weights for layer_i
-                     backward pass for layer_i
-                     discard full weights for layer_i
-                     reduce-scatter gradients for layer_i
-   ```
+      - **[FSDP: PyTorch offical version of ZeRO](https://pytorch.org/blog/introducing-pytorch-fully-sharded-data-parallel-api/)**
+         - In one word: replacement for DDP, pesudo-code in nutshell:
+            ```
+            forward pass :
+            for layer_i in layers:
+               all-gather full weights for layer_i
+               forward pass for layer_i
+               discard full weights for layer_i
+            backward pass:
+            for layer_i in layers:
+               all-gather full weights for layer_i
+               backward pass for layer_i
+               discard full weights for layer_i
+               reduce-scatter gradients for layer_i
+            ```
    - Model parallel
       - Tensor Parallel: horizontal partition
-         - Mesh-Tensorflow: TensorFlow
-         - Megatron-LM: PyTorch
+         - **[Mesh TensorFlow - Model Parallelism Made Easier](https://github.com/tensorflow/mesh)** 
+            - In one word: for TensorFlow
+         - **Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism, 2019**
+            - In one word: for PyTorch
       - Pipeline Parallel: vertical partition
-         - Gpipe: 
-         - PipeDream: improve pipeline efficiency by storing multiple copies of weights
-         - TeraPipe: designed for Transformer, pipeline occurs across tokens instead of mini-batch
+         - **GPipe: Easy Scaling with Micro-Batch Pipeline Parallelism, 2018**
+         - **[PipeDream](https://github.com/PipedreamHQ/pipedream)** 
+            - In one word: improve pipeline efficiency by storing multiple copies of weights
+         - **TeraPipe: Token-Level Pipeline Parallelism for Training Large-Scale Language Models, 2021**: 
+            - In one word: designed for Transformer, pipeline occurs across tokens instead of mini-batch
    - All in one
-      - ColossalAI
-      - Megatron-Deepspeed
+      - **Colossal-AI: A Unified Deep Learning System For Large-Scale Parallel Training, 2021**
+      - **[Megatron-Deepspeed](https://github.com/microsoft/Megatron-DeepSpeed)** 
 
 - Instruct Finetuning
    - **SELF-INSTRUCT: Aligning Language Model with Self Generated Instructions, 2022**
