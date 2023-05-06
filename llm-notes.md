@@ -51,7 +51,7 @@ date: 3/2/2023
             - Decoder Transformer
          - misc
             - depict in matrix-vector product, instead of the mostly used vector-matrix product form
-            - use bias $b$ in QKV projection: $k = Wx+b$ 
+            - use bias $b$ in QKV projection: $k = W_k x+b_k$
    - **[A precise and nano implementation of GPT2](https://github.com/karpathy/nanoGPT)**
    - **Transformers: State-of-the-Art Natural Language Processing, 2020, Huggingface**
       - Targets
@@ -68,6 +68,29 @@ date: 3/2/2023
          - use adapters to convert models to CoreML weights for edge devices
    - **[A Mathematical Framework for Transformer Circuits](https://transformer-circuits.pub/2021/framework/index.html)**
    - **[In-context Learning and Induction Heads](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html)**
+   - **Efficient Transformers: A Survey, 2020, Google**
+      - In one word: characterizes a large and thoughtful selection of recent efficiency-favored "X-former" models, providing an organized and comprehensive overview of existing work and models across multiple domains
+   - **Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context, 2019, Google**
+      - In one word: a transformer architecture that enables learning dependency beyond a fixed length without disrupting temporal coherence
+      - Method in details:
+         - a segment level recurrence mechanism 
+            - hidden state sequence of previous segment fixed and cached to be reused as extra (k,v) context in next segment
+            - cached state sequence as a meory augumented neural networks $\bold{m} \in R^{M \times d}$
+               - training: $M$ equals to segment length
+               - inference: increase $M$ by several times for larger context(benefit from the inductive bias from relative positional encoding)
+         - a novel relative Positional Encoding(PE) scheme
+            - Absolute PE attention matrix $A_{i,j}$: $$(E_i+P_i)W_{Q}W_{K}^T(E_j^T+P_j^T)=E_i W_Q W_K^T E_j^T + E_i W_Q W_K^T P_j^T + P_i W_Q W_K^T E_j^T + P_i W_Q W_K^T P_j^T$$
+            - For proposed relative PE, make three changes
+               - $P_j$ -> $R_{i-j}$ for relative position from $i$ to $j$, $i \ge j$ in causal attention
+               - positional constant $P_i W_Q$ change to $\bold{u}$ and $\bold{v}$, each for one of the two occurrences
+               - split $W_K$ to $W_{K,E}$ and $W_{K,R}$ to use different key weight matrices for content and position
+               - resulting relative PE formulation: $$E_i W_Q W_K^T E_j^T + E_i W_Q R_{i-j}^T + \bold{u} W_K^T E_j^T + \bold{v} W_K^T R_{i-j}^T$$
+      - Main results
+         - WikiText-103: new ppl(perplexity) SOTA from 20.5 to 18.3
+         - enwik8: 12 layers reach new bpc(byte per character) SOTA 0.99, used only 17% parameters compared to a 64 layer network
+         - text8: new bpc SOTA 1.08 by large margin
+         - One Billon Word(short term dependency): new single-model SOTA of ppl 21.8 by large margin
+         - Word level Penn Treebank: new SOTA without two-step finetuing
 
 - OpenAI GPT series: 
    - GPT-1: **Improving Language Understanding by Generative Pre-Training, 2018, OpenAI**
@@ -130,7 +153,7 @@ date: 3/2/2023
    - ChatGPT Plugins
       - [An end-to-end 3'rd demo](https://techcommunity.microsoft.com/t5/fasttrack-for-azure/how-chatgpt-plugins-could-work/ba-p/3761483)
 
-- Google Research/Brain/DeepMind: 
+- Google Research/Brain/DeepMind/Baidu: 
    - BERT series: 
       - **BERT: Pre-training of deep bidirectional transformers for language understanding, 2019, Google** (OK)
       - **RoBERTa: A Robustly Optimized BERT Pretraining Approach, 2019, Facebook** (OK)
@@ -153,6 +176,32 @@ date: 3/2/2023
       - **Scaling Language Models: Methods, Analysis & Insights from Training Gopher, 2022, (Google/DeepMind)**
    - T5 series: (training all kinds of task in unified text-to-text way)
       - **Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer, 2020, Google (T5)**
+   - **ERNIE 3.0 Titan: Exploring Larger-scale Knowledge Enhanced Pre-training for Language Understanding and Generation, 2021, Baidu**
+      - In one word: scaling up of ERNIE 3.0 with self-supervised adversarial loss and controllable language modeling loss
+      - Method in details
+         - 2 types of transformer modules
+            - Universal representation module: 48 layers, 12288 model dim, 192 heads, 16 * 12288 for hidden layer in ffn
+            - Task-specific Representation modules: 12 layers, 768 model dim, 12 heads
+         - 3 level of pretraining tasks from lexical, syntactic to sentiment
+            - Word aware tasks(language modeling)
+               - knowledge integrated masked language modeling task
+               - document language modeling task: ERNIE Doc, enhanced recurrence memory mechanism for long sequence
+            - Structure aware tasks(classification)
+               - sentence reordering tasks: #class = $\sum_{n=1}^m n!$ for $m$ segments paragraph
+               - sentence distance tasks: #class = 3, {adjacent, nonadjacent but in the same document, in different documents}
+            - Knowledge aware tasks
+               - self-supervised adversarial task: binary classification 
+                  - differentiate LM generated text from original training corpus
+               - controllable language model task: conditional(prompt) language modeling
+                  - condition on extra prompt for text generation
+                  - soft prompt used for each dataset
+                  - datasets involved: Genre/Topic/Keyword/Sentiment/Length
+                     - `[Genre-0], [Genre-1], [Genere-N] [t] Topic texts [/t] [k] Keyword text0, Keyword text1[/k] [senti]Sentiment label text [/senti] [w] About L words [/w] {{Original Text}}`
+         - 4D hybrid parallelism for training
+            - shared data parallel with ZeRO(2D)
+            - intra-layer tensor parallel
+            - inter-layer pipeline parallel
+         - 2D parallelism for inference: no need for data parallel 
 
 - More opensource model:
    - **BLOOM: A 176B-Parameter Open-Access Multilingual Language Model, 2022, MetaAI**
@@ -305,7 +354,24 @@ date: 3/2/2023
       - [Github Link](https://github.com/huggingface/blog/blob/main/rlhf.md)
    - **Deep reinforcement learning from human preferences, 2017, OpenAI**
    - **A survey of preference-based reinforcement learning methods, 2017, JMLR**
-
+   - **[PPO implementation on spinningup](https://github.com/openai/spinningup/tree/master/spinup/algos/pytorch/ppo)**
+      - In brief: 
+         - vanilla PPO-2 implementation
+         - GAE for advantage function
+         - Parallel in trajectories generation and gradient calculation with MPI(data parallel)
+      - Several notes:
+         - Main loop: 
+            - collect trajectories with current policy, `steps_per_epoch` for each epoch, distributed in `np=cpu` processes
+               - for each trajectory step, sample action, `step` the env and record tuple $\{s_t, a_t, r(s_t, a_t), V_{\psi_{old}}(s_t), \log \pi_{\theta_{old}}(a_t|s_t)\}$, in code variable `(obs, act, rew, val, logp)`
+               - when trajectory `done`, accumulate the decayed advantange for policy update and target for value function update
+                  - $\delta_t = r(s_t, a_t) + \gamma V_{\psi_{old}}(s_{t+1}) - V_{\psi_{old}}(s_t)$
+                  - `adv`: $A(s_t, a_t) = \sum_{t'=t}^T {(\gamma \lambda)}^{t'-t} \delta_{t'}$
+                  - `ret`: $G_t = \sum_{t'=t}^T \gamma^{t'-t} r(s_{t'}, a_{t'})$
+            - update with gradient from loss, with tuple `(obs, act, ret, adv, logp)`
+               - define $r_t(\theta) = \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}$
+               - policy(parametered by $\theta$): $\frac{1}{N} \sum_{\text{episode}} \sum_t \min (r_t A(s_t, a_t), \text{clamp}(r_t, 1-\epsilon, 1+\epsilon) A(s_t, a_t))$
+               - value function(parametered by $\psi$): $\frac{1}{N} \sum_{\text{episode}} \sum_t (\sum V_{\psi}(s_t) - G_t)^2$
+            
 - Prompt(hard/soft) engineering
    - Survey:
       - **Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in Natural Language Processing, 2021, CMU** (OK)
@@ -325,7 +391,7 @@ date: 3/2/2023
       - **P-tuning/P-tuning V2: Prompt Tuning Can Be Comparable to Fine-tuning Universally Across Scales and Tasks, 2021, Tsinghua** (OK)
       - **Unified View: Towards a unified view of parameter-efficient transfer learning, 2022, CMU** (OK)
          - In one word: Unify Adpater/LoRA/Prefix-tuning into the modification to specific hidden states(heads) in pretrained model
-         - Aspects of modifications
+         - Aspects of modification
             - target: head-attention(Prefix Tuning), attention(Adapter/LoRA), ffn(Adapter), key/value tranform matrix(LoRA)
             - composition: $h \leftarrow h + s \Delta h$ or $h \leftarrow (1-\lambda(x)) h + \lambda(x) \Delta h$ (PrefixTuning)
             - modifier $\Delta h$: 
@@ -343,6 +409,7 @@ date: 3/2/2023
       - **Intrinsic Dimensionality Explains the Effectiveness of Language Model Fine-Tuning, 2020, Facebook** 
       - **Revisiting Parameter-Efficient Tuning: Are We Really There Yet?, 2022**
       - **Parameter-efficient fine-tuning of large-scalepre-trained language models, 2023, Tsinghua**
+      - **Scaling Down to Scale Up: A Guide to Parameter-Efficient Fine-Tuning, 2023, UMass**
       
       - **[LoRA for Stable Diffusion Finetuning](https://huggingface.co/blog/lora)**
          - **[Github](https://github.com/cloneofsimo/lora)**
@@ -639,7 +706,7 @@ date: 3/2/2023
          1. Sampling API calls from LM with specific prompt $P(\textbf{x})$ for each tool
             - sampling top-$k$ positions according to $p_M(<API>|P(\textbf{x}), x_{1:i})$
             - for each position, sampling upto $m$ API calls
-         2. Executes API calls: obtain $m$*$k$ response text
+         2. Executes API calls: obtain $m \times k$ response text
          3. Filtering API calls: by loss reduction threshold $T_f$
             - Loss: $L_i(\textbf{z}) = - \sum_{j=i}^{n} w_{j-i} \cdot \log p_M(x_j | \textbf{z}, \textbf{x}_{1:j-1})$
             - Loss reduction: $\min (L_i(\epsilon), L_i(e(c_i, \epsilon))) - L_i(e(c_i, r_i)) \gt T_f$ 
@@ -735,25 +802,6 @@ date: 3/2/2023
                   - 11/20/2021 Wikipedia dump, 37M passages, 78 words in average
                   - 2020-10 Common Crawl dump, 350M passages
             - Finetuning: fixed iteration steps adapted to downstream tasks
-   - **Toolformer: Language models can teach themselves to use tools, 2023**
-      - In one word: a model trained to decide which APIs to call, when to call them, what arguments to pass, and how to best incorporate them for the next token prediction
-      - Methods: 5 steps involved
-         1. Sampling API calls from LM with specific prompt $P(\textbf{x})$ for each tool
-            - sampling top-$k$ positions according to $p_M(<API>|P(\textbf{x}), x_{1:i})$
-            - for each position, sampling upto $m$ API calls
-         2. Executes API calls: obtain $m$*$k$ response text
-         3. Filtering API calls: by loss reduction threshold $T_f$
-            - Loss: $L_i(\textbf{z}) = - \sum_{j=i}^{n} w_{j-i} \cdot \log p_M(x_j | \textbf{z}, \textbf{x}_{1:j-1})$
-            - Loss reduction: $\min (L_i(\epsilon), L_i(e(c_i, \epsilon))) - L_i(e(c_i, r_i)) \gt T_f$ 
-            - $e(c_i, r_i) := [a_c(i_c)->r]$
-         4. Model finetuning: 
-            - augument $\textbf{x} \in C$ with API calls: ($\textbf{x}_{1:i}, e(c_i, r_i), \textbf{x}_{i+1:n}$)
-            - finetune with augumented corpus
-         5. Prediction:
-            - decode as usual, when generating '->', call API to fill the next token followed by ']', the continue the decoding process
-      - Tools tested:
-         - Question Answering:
-                              
    - **HuggingGPT: Solving AI Tasks with ChatGPT and its Friends in HuggingFace, 2023, MSRA**
       - In one word: a system that leverages LLMs to connect various AI models in Huggingface to solve multi-modal AI tasks
       - Methods: four steps in all
