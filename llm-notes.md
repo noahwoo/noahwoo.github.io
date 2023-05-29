@@ -4,31 +4,29 @@ author: Jianmin
 date: 3/2/2023
 ---
 
-# 核心技术方向
-- Pretrained Models
-   - Left to right(GLM)
-      - OpenAI: GPT/GPT-2/GPT-3
-   - Masked LM
-      - Google: BERT
-      - Google: RoBERTa
-   - Prefix LM
-      - MSRA: UniLM1/UniLM2
-   - Encoder/decoder
-      - Google: T5
-      - MSRA: MASS
-      - Facebook: BART
-- Prompt Engineering
-   - Shape: 
-      - Cloze: LAMA/TemplateNER
-      - Prefix: Prefix-Tuning/Prompt-Tuning
-   - Human Effort:
-      - Hand crafted: LAMA/GPT3
-      - Automated: 
-         - Discrete: AdvTrigger/AutoPrompt
-         - Continuous: Prefix-Tuning/Prompt-Tuning
-- Answer Engineering
+# Outline
+
+- Pretraining
+  - Transformers
+  - OpenAI GPT series
+  - Google/Baidu/MetaAI
+  - Distributed training & inference
+- Finetuning
+  - Instruct Finetuning
+  - RLFH series
+- Prompt Enginneering
+  - Prompt(hard/soft) engineering
+  - In context learning
+  - Cot/Reasoning
+- Augment Language Model
+  - World knowledge and augmented language model
+- Others
+  - Multilingual & Multimodal
+  - Alignments
+  - DNN
 
 # Resources on track
+
 - Transformers
    - **Thinking Like Transformers, 2021**
    - **Training compute-optimal large language models, 2022, Deepmind**
@@ -91,6 +89,24 @@ date: 3/2/2023
          - text8: new bpc SOTA 1.08 by large margin
          - One Billon Word(short term dependency): new single-model SOTA of ppl 21.8 by large margin
          - Word level Penn Treebank: new SOTA without two-step finetuing
+   - **Unified Language Model Pre-training for Natural Language Understanding and Generation, 2019, MSRA**
+      - In one word: a parameter-shared transformer framework for unified training of NLG and NLU tasks with attention masking
+      - Method in details: 
+         - Transformer Decoder: self-attention support bi-direction, uni-direction(causal) masking
+         - 4 pre-training objectives
+           - Unidirectional LM: ```x1x2x3[mask]x4```, ```[mask]``` attend to ```x1x2x3[mask]```
+           - Bidirectional LM: ```x1x2x3[mask]x4```, ```[mask]``` attend to ```x1x2x3[mask]x4```
+           - Seq2seq LM: ```[SOS]x1x2x3[EOS]x4x5x6[EOS]```
+             - ```x2``` attend to ```[SOS]x1x2x3[EOS]```
+             - ```x5``` attend to ```[SOS]x1x2x3[EOS]x4x5```
+           - Next Sentence Prediction
+         - 2 finetuning tasks
+           - NLU: text classification
+             - ```[SOS]``` embedding as sentence presentation
+             - classification head and model parameters updated 
+           - NLG: summarization
+             - ```[SOS]S1[EOS]S2[EOS]```, random mask token at ```S2[EOS]``` 
+             - masking of ```[EOS]``` enables model to terminate generation
 
 - OpenAI GPT series: 
    - GPT-1: **Improving Language Understanding by Generative Pre-Training, 2018, OpenAI**
@@ -289,6 +305,19 @@ date: 3/2/2023
    - Data parallel
       - **[DDP PyTorch](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html)**: 
          - In one word: all-reduce after back-propagation
+           ```
+           forward pass :
+           for layer_i in layers: 
+             forward pass for layer_i
+            
+           backward pass :
+           for layer_i in layers:
+             backward pass for layer_i
+             full: all-reduce gradients for layer_i
+             full: update momentum & variance
+             full: update weights
+            ```å
+           
       - **ZeRO: Memory Optimizations Toward Training Trillion Parameter Models, 2019**
          - shards optimizer states, gradients, parameters to data parallel workers
          - each worker updates the local parameters by forward/backward
@@ -306,7 +335,9 @@ date: 3/2/2023
                all-gather full weights for layer_i
                backward pass for layer_i
                discard full weights for layer_i
-               reduce-scatter gradients for layer_i
+               part: reduce-scatter gradients for layer_i
+               part: update momentum & variance
+               part: update weights
             ```
    - Model parallel
       - Tensor Parallel: horizontal partition
@@ -323,6 +354,16 @@ date: 3/2/2023
    - All in one
       - **Colossal-AI: A Unified Deep Learning System For Large-Scale Parallel Training, 2021**
       - **[Megatron-Deepspeed](https://github.com/microsoft/Megatron-DeepSpeed)** 
+   - Others
+      - **1-bit Adam: Communication Efficient Large-Scale Training with Adam’s Convergence Speed, 2021, Microsoft**
+        - In one word: reduce the communication bandwidth(from FP32 to binary) with error-compensated compression, leverage the findings that variance of Adam becomes stable during training
+        - Two-stages method in details: 
+          - Use vanilla Adam for the warm-up stage (~20% of the training steps)
+          - In compression stage, fix the variance updates in Adam, communicate the momentum with error compensated 1-bit compression
+          - In parameter server settings, communication of worker local momentum and server global momentum get compressed before sending
+        - Theoretical results
+          - Prove of convergence
+          - Communication bandwith reduce to 1/32 for FP32 and 1/16 for FP 16 
 
 - Instruct Finetuning
    - **SELF-INSTRUCT: Aligning Language Model with Self Generated Instructions, 2022**
@@ -455,7 +496,7 @@ date: 3/2/2023
       - **What Can Transformers Learn In-Context? A Case Study of Simple Function Classes, 2023, Stanford**
       - **Why Can GPT Learn In-Context? Language Models Secretly Perform Gradient Descent as Meta-Optimizers, 2022, Tsinghua**
 
-- CoT/Reasons: 
+- CoT/Reasoning: 
    - **Chain of thought prompting elicits reasoning in large language models, 2022, Google** (OK)
       - Prompt with chain of thought helps improve perf. on arithmetric, commonsense and symbolic reasoning
       - Ablation study shows: 
@@ -569,8 +610,26 @@ date: 3/2/2023
    - **Multimodal chain-ofthought reasoning in language models, 2023, Amazon(Alex Smola)**
    - Automatic CoT
       - **Automatic Prompt Augmentation and Selection with Chain-of-Thought from Labeled Data, 2023**
+         - In one word:  
+   
+   - **Tree of Thoughts: Deliberate Problem Solving with Large Language Models, 2023**
+      - In one word: decision making by multiple different reasoning paths and self-evaluation choices of next action with looking ahead or backtracking
+      - 4 steps for reasoning path generation and evaluation:
+         - Task dependent thought decomposition
+            - Crosswords/Game of 24/Creative Writing
+         - 2 ways for thought generator:
+            - sampling iid thoughts from CoT prompt
+            - propose prompt for constrained thoughts space
+         - 2 ways to evaluate state using LM deliberately:
+            - **Value** each state with reasoning prompt for scalar value
+            - **Vote** based on comparison of state for harder-to-value case
+         - 2 mode to search the thoughts tree
+            - BFS: with depth limits $T \le 3$ and initial thoughts to small set($b \le 5$)
+            - DFS: explore the promising state first, with value threshold prim for efficiency
+      - Conclusion:
+         - Outperform CoT/CoT-SC etc. on **Game of 24**, **Crosswords** and **Creative Writing** tasks
 
-- World knowledge and augumented language model
+- World knowledge and augmented language model
    - **REALM: Retrieval-Augmented Language Model Pre-Training, 2020, Google** (OK)
       - Neural retrieval augumented LM generator: P(y|x) = \sum_z P(z|x) P(y|x,z)
       - P(z|x) a transformer encoded retrieval with vector similarity as the ranking criteria
@@ -645,6 +704,7 @@ date: 3/2/2023
          - **Looped transformers as programmable computers, 2023**
          - **A path towards autonomous machine intelligence, 2022, Lecun**
          - **Language models (mostly) know what they know, 2022**
+           - In one word: study whether language models can evaluate the validity of their own claims and predict which questions they will be able to answer correctly
          - **React: Synergizing reasoning and acting in language models, 2022**
    - **Talm: Tool augmented language models, 2022**
       - In one word: text-only approach to augument LM with non-differential tools, self-play technique to bootstrap performance with few tool usage demonstrations at the beginning
@@ -827,7 +887,7 @@ date: 3/2/2023
             - Prompts: `With the input and the inference results, the AI assistant needs to describe the process and results. The previous stages can be formed as - User Input: {{ User Input }}, Task Planning: {{ Tasks }}, Model Selection: {{ Model Assignment }}, Task Execution: {{ Predictions }}. You must first answer the user’s request in a straightforward manner. Then describe the task process and show your analysis and model inference results to the user in the first person.  If inference results contain a file path, must tell the user the complete file path.`
    - **Tool Learning with Foundation Models, 2023, Tsinghua**
 
-- Multilingual & Multimodel
+- Multilingual & Multimodal
    - **Few-shot Learning with Multilingual Generative Language Models, 2022, Meta AI**
    - **PaLM-E: An Embodied Multimodal Language Model, 2023, Google Research**
    - **MM-REACT: Prompting ChatGPT for Multimodal Reasoning and Action, 2023, Microsoft Azure**
