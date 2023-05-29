@@ -7,27 +7,27 @@ date: 3/2/2023
 # Outline
 
 - Pretraining
-  - Transformers
-  - OpenAI GPT series
-  - Google/Baidu/MetaAI
-  - Distributed training & inference
+  - [Transformers](#transformers)
+  - [OpenAI GPT series](#openai-gpt-series)
+  - [Google/Baidu/MetaAI](#google-researchbraindeepmindbaidu)
+  - [Distributed training & inference](#distributed-training-and-inference)
 - Finetuning
-  - Instruct Finetuning
-  - RLFH series
+  - [Instruct Finetuning](#instruct-finetuning)
+  - [RLFH series](#rlfh-series)
 - Prompt Enginneering
-  - Prompt(hard/soft) engineering
-  - In context learning
-  - Cot/Reasoning
+  - [Prompt(hard/soft) engineering](#prompthardsoft-engineering)
+  - [In context learning](#in-context-learning)
+  - [Cot/Reasoning](#cotreasoning)
 - Augment Language Model
-  - World knowledge and augmented language model
+  - [World knowledge and augmented language model](#world-knowledge-and-augmented-language-model)
 - Others
-  - Multilingual & Multimodal
-  - Alignments
-  - DNN
+  - [Multilingual & Multimodal](#multilingual--multimodal)
+  - [Alignments](#alignments)
+  - [DNN](#dnn)
 
 # Resources on track
 
-- Transformers
+## Transformers
    - **Thinking Like Transformers, 2021**
    - **Training compute-optimal large language models, 2022, Deepmind**
    - **Formal Algorithms for Transformer, 2022, Deepmind**
@@ -108,7 +108,7 @@ date: 3/2/2023
              - ```[SOS]S1[EOS]S2[EOS]```, random mask token at ```S2[EOS]``` 
              - masking of ```[EOS]``` enables model to terminate generation
 
-- OpenAI GPT series: 
+## OpenAI GPT series: 
    - GPT-1: **Improving Language Understanding by Generative Pre-Training, 2018, OpenAI**
    - GPT-2: **Language Models are Unsupervised Multitask Learners, 2019, OpenAI**
    - GPT-3: **Language Models are Few-Shot Learners, 2020, OpenAI**
@@ -169,7 +169,7 @@ date: 3/2/2023
    - ChatGPT Plugins
       - [An end-to-end 3'rd demo](https://techcommunity.microsoft.com/t5/fasttrack-for-azure/how-chatgpt-plugins-could-work/ba-p/3761483)
 
-- Google Research/Brain/DeepMind/Baidu: 
+## Google Research/Brain/DeepMind/Baidu: 
    - BERT series: 
       - **BERT: Pre-training of deep bidirectional transformers for language understanding, 2019, Google** (OK)
       - **RoBERTa: A Robustly Optimized BERT Pretraining Approach, 2019, Facebook** (OK)
@@ -219,7 +219,7 @@ date: 3/2/2023
             - inter-layer pipeline parallel
          - 2D parallelism for inference: no need for data parallel 
 
-- More opensource model:
+## More opensource model:
    - **BLOOM: A 176B-Parameter Open-Access Multilingual Language Model, 2022, MetaAI**
       - In one word: towards democratizing LLM with BLOOM, a 176B-parameter open access decoder only language model
       - BLOOM traininng details
@@ -301,7 +301,7 @@ date: 3/2/2023
          - Finetune with classification tasks
             - Sentiment classification: `{SENTENCE}. It is really [MASK].`
 
-- Distributed training and inference
+## Distributed training and inference
    - Data parallel
       - **[DDP PyTorch](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html)**: 
          - In one word: all-reduce after back-propagation
@@ -354,6 +354,19 @@ date: 3/2/2023
    - All in one
       - **Colossal-AI: A Unified Deep Learning System For Large-Scale Parallel Training, 2021**
       - **[Megatron-Deepspeed](https://github.com/microsoft/Megatron-DeepSpeed)** 
+   - Quantization for training & inference
+      - **[Large Transformer Model Inference Optimization, 2023, Lil's Log](https://lilianweng.github.io/posts/2023-01-10-inference-optimization/)** 
+      - **LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale, 2022, Huggingface**
+        - In one word: vector-wise quantization for row and column in matrix multiplication, with a new mix-precision decomposition scheme; applied in head projection and FFN layers in transformer
+        - Methods:
+          - Observations:
+            - outlier features emergent with model scales, 6.7B is critical point
+            - outlier features highly systematic: 6.7B scale, 150K outliers occur in 6 feature dimensions(columns)
+          - Quantization in vector wise $XW$: 
+            - row int8 quantization for $X$
+            - column int8 quantization for $W$ 
+          - Column or row with outlier features ($\ge 6.0$) extracted using FP16 multiplication(< 0.1%)
+        - Opensource implementations: [bitsandbytes](https://github.com/TimDettmers/bitsandbytes)
    - Others
       - **1-bit Adam: Communication Efficient Large-Scale Training with Adam’s Convergence Speed, 2021, Microsoft**
         - In one word: reduce the communication bandwidth(from FP32 to binary) with error-compensated compression, leverage the findings that variance of Adam becomes stable during training
@@ -365,7 +378,7 @@ date: 3/2/2023
           - Prove of convergence
           - Communication bandwith reduce to 1/32 for FP32 and 1/16 for FP 16 
 
-- Instruct Finetuning
+## Instruct Finetuning
    - **SELF-INSTRUCT: Aligning Language Model with Self Generated Instructions, 2022**
       - In one word: improve the instruction following capabilities of pretrained LM by bootstrapping off its own generation
       - Methods: definition of instruction data -> $(I_t, [X_t, Y_t]+)$ , $X_t$ can be empty
@@ -390,7 +403,7 @@ date: 3/2/2023
       - Results: 
          - 52K instructions and 82K instances generated with good diversity and quality(92% valid instruction, 54% valid input/output and instruction)
 
-- RLFH series:
+## RLFH series:
    - **Illustrating Reinforcement Learning from Human Feedback (RLHF), 2022, Hugging Face Blog**
       - [Github Link](https://github.com/huggingface/blog/blob/main/rlhf.md)
    - **Deep reinforcement learning from human preferences, 2017, OpenAI**
@@ -413,7 +426,7 @@ date: 3/2/2023
                - policy(parametered by $\theta$): $\frac{1}{N} \sum_{\text{episode}} \sum_t \min (r_t A(s_t, a_t), \text{clamp}(r_t, 1-\epsilon, 1+\epsilon) A(s_t, a_t))$
                - value function(parametered by $\psi$): $\frac{1}{N} \sum_{\text{episode}} \sum_t (\sum V_{\psi}(s_t) - G_t)^2$
             
-- Prompt(hard/soft) engineering
+## Prompt(hard/soft) engineering
    - Survey:
       - **Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in Natural Language Processing, 2021, CMU** (OK)
       - **[Prompt Engineering](https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/), 2023, OpenAI**
@@ -465,7 +478,7 @@ date: 3/2/2023
    - Applications: 
       - **Prompt tuning GPT-2 language model for parameter-efficient domain adaptation of ASR systems, 2022, Amazon** (OK)
 
-- In context learning
+## In context learning
    - Survey
       - **A Survey on In-context Learning, 2023, PKU** (OK)
    - Explanations:
@@ -496,7 +509,7 @@ date: 3/2/2023
       - **What Can Transformers Learn In-Context? A Case Study of Simple Function Classes, 2023, Stanford**
       - **Why Can GPT Learn In-Context? Language Models Secretly Perform Gradient Descent as Meta-Optimizers, 2022, Tsinghua**
 
-- CoT/Reasoning: 
+## CoT/Reasoning: 
    - **Chain of thought prompting elicits reasoning in large language models, 2022, Google** (OK)
       - Prompt with chain of thought helps improve perf. on arithmetric, commonsense and symbolic reasoning
       - Ablation study shows: 
@@ -625,11 +638,11 @@ date: 3/2/2023
             - **Vote** based on comparison of state for harder-to-value case
          - 2 mode to search the thoughts tree
             - BFS: with depth limits $T \le 3$ and initial thoughts to small set($b \le 5$)
-            - DFS: explore the promising state first, with value threshold prim for efficiency
+            - DFS: explore the promising state first, with value threshold pruning for efficiency
       - Conclusion:
          - Outperform CoT/CoT-SC etc. on **Game of 24**, **Crosswords** and **Creative Writing** tasks
 
-- World knowledge and augmented language model
+## World knowledge and augmented language model
    - **REALM: Retrieval-Augmented Language Model Pre-Training, 2020, Google** (OK)
       - Neural retrieval augumented LM generator: P(y|x) = \sum_z P(z|x) P(y|x,z)
       - P(z|x) a transformer encoded retrieval with vector similarity as the ranking criteria
@@ -887,14 +900,14 @@ date: 3/2/2023
             - Prompts: `With the input and the inference results, the AI assistant needs to describe the process and results. The previous stages can be formed as - User Input: {{ User Input }}, Task Planning: {{ Tasks }}, Model Selection: {{ Model Assignment }}, Task Execution: {{ Predictions }}. You must first answer the user’s request in a straightforward manner. Then describe the task process and show your analysis and model inference results to the user in the first person.  If inference results contain a file path, must tell the user the complete file path.`
    - **Tool Learning with Foundation Models, 2023, Tsinghua**
 
-- Multilingual & Multimodal
+## Multilingual & Multimodal
    - **Few-shot Learning with Multilingual Generative Language Models, 2022, Meta AI**
    - **PaLM-E: An Embodied Multimodal Language Model, 2023, Google Research**
    - **MM-REACT: Prompting ChatGPT for Multimodal Reasoning and Action, 2023, Microsoft Azure**
    - **A Generalist Agent, 2022, Google Deepmind**
 
-- Alignments
+## Alignments
    - **In conversation with Artificial Intelligence: aligning language models with human values, 2022, Google/DeepMind**
 
-- DNN
+## DNN
    - **[Anatomize Deep Learning with Information Theory](https://lilianweng.github.io/posts/2017-09-28-information-bottleneck/)**
