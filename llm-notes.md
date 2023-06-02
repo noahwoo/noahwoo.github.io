@@ -554,6 +554,52 @@ date: 3/2/2023
          - Visualcomet: Reasoning about the dynamic context of a still image, 2020 (GPT-4 image reasoning demo)
    - **Towards Reasoning in Large Language Models: A Survey, 2022, UIUC**
    - **ReAct: Synergizing reasoning and action in language models, 2022, Google** (OK)
+      - In one word: use LLMs to generate both reasoning and action plan in an interleaved manner, allowing the synergy between the two
+      - Method introduction:
+         - augment the space of action with space of language: $\hat{A} = A \cup L$
+         - name language space $\hat{a}_t$ as the *thoughts* or *reasoning trace*: $c_{t+1} = (c_t, \hat{a}_t)$
+            - decompose task goals and create action plans
+            - inject task related commonsesense knowledge
+            - extract important parts from observations
+            - track progress and transit action plans
+            - handle exception and adjust action plans
+         - prompt a frozen language model with in-context examples to generate both domain-specific actions and free thoughts
+            - reasoning task: alternate between thought/action 
+            - decision making task: few thoughts, more actions, language model makes decision
+      - Knowledge intenstive reasoning tasks
+         - Domain: HotpotQA/Fever
+         - Action space: **search**/**lookup**/**finish** on Wikipedia web API
+         - ReAct prompting:
+            - HotpotQA/Fever: 6/3 examples with manually composed ReAct-format trajectories in prompt
+            - thought/action/observation steps, with thoughts for
+               - decompose question
+               - extract information from Wikipedia observations
+               - commonsense and arithmetic reasoning
+               - search reformulation
+               - synthesis final answer
+         - Results
+            - ReAct under/equal-perform CoT-SC on HotpotQA/Fever
+            - CoT-SC -> ReAct outperform CoT-SC
+            - ReAct -> CoT-SC outperform CoT-SC
+      - Decision making tasks
+         - Domain: ALFWorld/WebShop(1.18M real-world products, 12k human instructions)
+         - Act to long horizons with sparse rewards
+         - ReAct prompting:
+            - ALFWorld: Annotate 3 trajectories for each task type, with thoughts for
+               - decompose goal
+               - track subgoal completion
+               - determine next subgoal
+               - reason via commonsense
+            - WebShop: prompt with actions to search, choose product, choose options, and buy, and thoughts for 
+               - what to explore 
+               - when to buy
+               - what product options are relevant
+         - Results
+            - ReAct outperform Act and ReAct-IM(ReAct with IM-style prompt)
+            - ReAct outperform BUTLER
+            - ReAct outperform IL/RL
+
+      - Decision making tasks
    - **Show Your Work: Scratchpads for Intermediate Computation with Language Models, 2021, Google Brain**
       - In one word: fine-tune Transformers to perform multi-step computations(long digits addition/program exec.) with intermediate computation steps as prompt written into a “scratchpad”
       - Conclusions: 
@@ -899,12 +945,76 @@ date: 3/2/2023
             - LLM summarize the final response, with confidence level
             - Prompts: `With the input and the inference results, the AI assistant needs to describe the process and results. The previous stages can be formed as - User Input: {{ User Input }}, Task Planning: {{ Tasks }}, Model Selection: {{ Model Assignment }}, Task Execution: {{ Predictions }}. You must first answer the user’s request in a straightforward manner. Then describe the task process and show your analysis and model inference results to the user in the first person.  If inference results contain a file path, must tell the user the complete file path.`
    - **Tool Learning with Foundation Models, 2023, Tsinghua**
+   - **Large Language Models as Tool Makers, 2023, Deepmind**
+      - In one word: LLM create tools(python function) with resource-intensive models, use tool with cost-effective model, to solve complex tasks
+      - Method in details: 
+         - Tool making: prompt driven(Appendix B), GPT-4
+           - Tool proposing: generate Python function by prompt and 3 problem demos
+           - Tool verification: generate UT code by prompt using 3 validation demos and excute on the tool
+           - Tool wrapping: if tool proposing and verfication success, wrap up the function call, generate demos for converting task into function call
+         - Tool using: prompt driven(Appendix B), GPT-3.5
+           - prompt with tool wrapping texts: function & usage demos
+           - generic CoT
+         - Dispatcher: prompt driven(Appendix B), GPT-3.5
+           - prompt with in-context classification demos, unknown for no matching tasks
+           - for given task, determine to use existing tools by tool user, or create new tool by tool maker
+      - Experiment & conclusion
+         - 5 tasks from BigBench: train/evaluation/test: 3/3/240
+           - Logical deduction
+           - Tracking Shuffled Objects
+           - Dyck Language
+           - Word Sorting
+           - Chinese Reminder Theorem
+           - Schedule meeting
+         - Results
+           - LATM enhance performance of GPT-3.5 Turbo, matching GPT-4
+           - Ablation study
+             - Easy task, GPT-3.5 Turbo qualify as tool maker
+             - Difficult task, GPT-4 is a must for tool maker
+             - GPT-3.5 Turbo qualified as tool user with balanced between performance and cost
+   - **ART: Automatic multi-step reasoning and tool-use for large language models, 2023, Microsoft**
+      - In one word: automate CoT tool using steps by a handcrafted task library
+      - Method in details
+        - Handcraft prompt to decompose task instance to program
+          - 5 clustering for Big-Bench tasks, 2-4 tasks for each cluster, few instance for each task
+            - Arithmetic
+            - Code
+            - Search and question decomposition
+            - Free-form reasoning
+            - String Operations
+          - Program grammar
+            - input node/substep nodes/answer node
+        - Program Generation
+          - given task, retrieve similar tasks
+            - task has labeled examples(50), select cluster with highest performance by using cluster program as fewshot prompt
+            - no labeled example, craft task pairs in fewshot prompt
+              - task pair: name/instruction/in-output examples
+              - label: Similar/Not similar
+              - run time: pair with each task in library, choose the highest-ranked one by log-prob ratio
+          - Tool involved
+            - Search by Google
+            - Code generation by Codex
+            - Code execution by virtural Python env.
+        - Human feedback to refine program
+          - Fix error
+          - Add new tool
+      - Data set & Results
+        - Big-Bench: 15 tasks for library, 19 tasks for evaluation
+        - random task from MMLU for cross-benchmark generalization
+        - ART outperform 
+          - Fewshot / AutoCot
+          - ART w/o tool use: use LM to generate tool result instead(work poorly for sure)
+        - ART underperform GPT-3 best(with human supervision for task decomposision and tool usage)
 
 ## Multilingual & Multimodal
    - **Few-shot Learning with Multilingual Generative Language Models, 2022, Meta AI**
    - **PaLM-E: An Embodied Multimodal Language Model, 2023, Google Research**
    - **MM-REACT: Prompting ChatGPT for Multimodal Reasoning and Action, 2023, Microsoft Azure**
    - **A Generalist Agent, 2022, Google Deepmind**
+
+## Arithmetic Reasoning
+   - **Solving Quantitative Reasoning Problems with Language Models, 2022, Google**
+   - **Let’s Verify Step by Step, 2023, OpenAI**
 
 ## Alignments
    - **In conversation with Artificial Intelligence: aligning language models with human values, 2022, Google/DeepMind**
