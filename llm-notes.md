@@ -1013,7 +1013,40 @@ date: 3/2/2023
    - **A Generalist Agent, 2022, Google Deepmind**
 
 ## Arithmetic Reasoning
+   - **Training Verifiers to Solve Math Word Problems, 2021, OpenAI**
+     - In one word: curate GSM8K and train a verifier to improve the performance of LLM on this dataset
+     - Methods:
+       - GSM8K: high-quality grade school math problems
+         - high-quality/high-diversity/moderate difficulty/natural language solution
+         - takes 2 to 8 steps to solve
+         - training: 7.5k, test: 1k 
+       - Two methods proposed
+         - finetuning(baseline)
+           - auto regressive LM loss on solution part
+           - training 20 epoches with size range from 500 to 7,500
+           - test by a single sample completion(greedy with T=0) from the finetuned model
+           - evaluate test@1 and test@100 for performance comparison
+           - observations: 
+             - 175B model perform best
+             - performance improves with increasing of training size
+             - test@1 perf improves with increasing of training epoches
+             - test@100 perf improves with increasing of training epoches at first, then drops quickly
+               - because of the diversity loss due to more training epoches
+         - veifier model
+           - finetune a generator model on training set for 2 epoches
+           - sample 100 completions from generator for each training problem
+           - label the completions sequence by checking the final answer
+             - result in a 7500*100=750,000 labeled dataset
+           - training a verifier with the labeled dataset for a single epoch
+           - test by sample 100 completions, ranked by verifier and use top-1 as answer
+           - observations
+             - scaling
+               - verifier scales more rapidly with increasing of training size
+               - verifier outperform finetuning at 2000 for 6B, and 1000 for 175B
+             - solution level loss verifier win at begining, lose in half of the process
+             - joint loss of language model and verification only outperform verification only loss
    - **Solving Quantitative Reasoning Problems with Language Models, 2022, Google**
+     - In one word: 
    - **Let’s Verify Step by Step, 2023, OpenAI**
 
 ## Alignments
