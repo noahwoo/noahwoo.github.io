@@ -1046,8 +1046,36 @@ date: 3/2/2023
              - solution level loss verifier win at begining, lose in half of the process
              - joint loss of language model and verification only outperform verification only loss
    - **Solving Quantitative Reasoning Problems with Language Models, 2022, Google**
-     - In one word: 
+     - In one word: finetuning(post pretraining) PaLM 540B with math technical content(arxiv latex & math-jax tag in html), evaluating model with fewshot prompt and majority voting on 200 undergraduate-level problems with ~33% success rate
+     - Methods:
+       - finetune with autoregressive LM objective
+       - finetuning dataset: 
+         - arxiv 1.2M paper, 58GB; math-jax, 60GB
+         - 26B tokens used for 540B PaLM finetuning(more tokens used for small PaLM model?!)
+       - evaluation dataset:
+         - MATH: 12k middle/high school mathematics problem, fixed 4-shot prompt
+         - GSM8k: middle school math word problem, CoT/no calculator used
+         - MMLU-STEM: STEM subset of MMLU, 5-shot from dev. set for prompt
+         - Undergraduate-level STEM problem: 272 in all, 191 with numeric solution, 81 symbolic solution
+       - inference details & criteria
+         - majority voting: saturate at $k=64$ for MATH, $k=16$ for GSM8k
+         - pass@k: perf. improves with increasing of $k$
+         - majority voting perform better than log-likelihood ranking, how about verifier?
+     - Results:
+       - 540B majority1@k perform best: 70+% accuracy on Algebra/PreAlgebra in MATH
+       - post pretraning works: Finetuning MATH on Minerva gains little, finetuning on PaLM get significant improvement
+       - memorization or genuine analytic capability
+         - conclusion: little evidence of performance attribution to memorization
+         - three methods tried:
+           - search model generated solution with BLEU score over training corpus
+           - alternate the problem framing and numerical value
+           - compare BLEU score of model solution with standard answer
+   - **A Neural Network Solves, Explains, and Generates University Math Problems by Program Synthesis and Few-Shot Learning at Human Level, 2022, MIT**
+     - In one word: problem to Python code(a translation of natural language to code), python code to answer
    - **Let’s Verify Step by Step, 2023, OpenAI**
+     - In one word: show that process feedback works better than result feedback
+     - Results:
+       - 78.2% problem on a representative subset of MATH(8 points gain over Minerva)
 
 ## Alignments
    - **In conversation with Artificial Intelligence: aligning language models with human values, 2022, Google/DeepMind**
