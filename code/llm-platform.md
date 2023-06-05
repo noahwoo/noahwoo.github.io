@@ -1,7 +1,7 @@
 ---
 title: Platform for Application of Large Language Model
 author: MEG-Feed
-date: 3/13/2023
+date: 2023-3-13
 ---
 
 # Langchain
