@@ -821,22 +821,26 @@ date: 3/2/2023
             - finetune biased to *ELI5* tasks by design
    - **Toolformer: Language models can teach themselves to use tools, 2023**
       - In one word: a model trained to decide which APIs to call, when to call them, what arguments to pass, and how to best incorporate them for the next token prediction
-      - Methods: 5 steps involved
-         1. Sampling API calls from LM with specific prompt $P(\textbf{x})$ for each tool
-            - sampling top-$k$ positions according to $p_M(<API>|P(\textbf{x}), x_{1:i})$
-            - for each position, sampling upto $m$ API calls
-         2. Executes API calls: obtain $m \times k$ response text
-         3. Filtering API calls: by loss reduction threshold $T_f$
-            - Loss: $L_i(\textbf{z}) = - \sum_{j=i}^{n} w_{j-i} \cdot \log p_M(x_j | \textbf{z}, \textbf{x}_{1:j-1})$
-            - Loss reduction: $\min (L_i(\epsilon), L_i(e(c_i, \epsilon))) - L_i(e(c_i, r_i)) \gt T_f$ 
-            - $e(c_i, r_i) := [a_c(i_c)->r]$
-         4. Model finetuning: 
-            - augument $\textbf{x} \in C$ with API calls: ($\textbf{x}_{1:i}, e(c_i, r_i), \textbf{x}_{i+1:n}$)
-            - finetune with augumented corpus
-         5. Prediction:
-            - decode as usual, when generating '->', call API to fill the next token followed by ']', the continue the decoding process
-      - Tools tested:
-         - Question Answering:
+      - Methods: two stages and 6 steps involved
+        - corpus augmentation with API calls
+           1. Sampling API calls from LM with specific prompt $P(\textbf{x})$ for each tool
+               - sampling top-$k$ positions according to $p_M(<API>|P(\textbf{x}), x_{1:i})$
+               - for each position, sampling upto $m$ API calls
+           2. Executes API calls: obtain $m \times k$ response text
+           3. Filtering API calls: by loss reduction threshold $T_f$
+               - Loss: $L_i(\textbf{z}) = - \sum_{j=i}^{n} w_{j-i} \cdot \log p_M(x_j | \textbf{z}, \textbf{x}_{1:j-1})$
+               - Loss reduction: $\min (L_i(\epsilon), L_i(e(c_i, \epsilon))) - L_i(e(c_i, r_i)) \gt T_f$ 
+               - $e(c_i, r_i) := [a_c(i_c)->r]$ 
+           4. augument $\textbf{x} \in C$ with API calls: ($\textbf{x}_{1:i}, e(c_i, r_i), \textbf{x}_{i+1:n}$)
+        - model fintuning and prediction
+           1. Model finetuning: finetune with augumented corpus
+           2. Prediction: decode as usual, when generating '->', call API to fill the next token followed by ']', then continue the decoding process
+      - Tools tested: each with few-shot prompt to elicit the tool token generation
+         - Question Answering
+         - Calculator
+         - Wikipedia Search
+         - Machine Translation System
+         - Calendar
    - **TAMER: Training an agent manually via evaluative reinforcement, 2008**
       - In one word: allows a human to train a learning agent to perform a common class of complex tasks by giving scalar reward signal for agent's observed actions
       - Methods: MDP\R paradigm
