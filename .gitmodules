@@ -1,0 +1,4 @@
+[submodule "intro-to-llms"]
+  path=intro-to-llms
+  url=https://github.com/noahwoo/intro-to-llms
+  branch=main
