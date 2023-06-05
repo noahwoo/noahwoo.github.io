@@ -1,3 +1,31 @@
+- Synthetic Control in Action, 2021, MIT, Alberto Abadie etc.
+   - date: 2/7/2022
+   - notes: 
+      - seven guiding principles
+         - fit matters
+         - but highly fitting violate series turn to over-fitting
+         - good control unit reproduce the trajectory of treated unit outcome over pre-intervention period
+         - and out-of-sample validation is key
+         - large donor pool not necessarily better than small one
+         - sparsity in weight leads to interpretable
+         - covariates matters
+      - key arguments on synthetic control
+         - scale of the transitory shocks(random noise)
+         - number of pretreatment periods
+         - size of donor pool
+      - validating of synthetic control
+         - backdating: reproduce on pre-intervention period
+
+- Synthetic Difference-in-difference, 2021, Stanford, Dmitry Arkhangelsky, Guido W. Imbens, etc. 
+   - date: 2/22/2022
+   - notes: 
+
+- (CausalImpact) INFERRING CAUSAL IMPACT USING BAYESIAN STRUCTURAL TIME-SERIES MODELS, 2015, KAY H. BRODERSEN etc. 
+   - date: 3/7/2022
+   - notes: 
+- Time Series Analysis by State Space Methods (for deep understanding of BSTS)
+   - date: 3/8/2022
+   - notes:
 - 2022/7/12 Fundemental Revisit
    - Dropout
       - Ideal Regularization: Bayesian gold standard $P(y|x; D) = \int P(y|x, w) P(w|D) dw$

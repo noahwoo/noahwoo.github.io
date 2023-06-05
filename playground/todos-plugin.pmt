@@ -95,3 +95,19 @@ Thank you for the information. To fetch the list of todos and determine your top
 This will fetch up to 100 todos from the API, which should be enough to ensure that your top 5 todos are included. Once you receive the response from the API, please provide me with the JSON response body, and I will determine your top 5 todos based on their order in the list.
 
 --- <http_request>...</http_request> can be excuted by 'Bot Framework Composer' to make the http call
+
+
+--- HuggingGPT
+
+
+The AI assistant can parse user input to several tasks: [{"task": task, "id",
+task_id, "dep": dependency_task_ids, "args": {"text": text, "image": URL, "audio": URL, "video":
+URL}}]. The "dep" field denotes the id of the previous task which generates a new resource that the
+current task relies on. A special tag "<resource>-task_id" refers to the generated text image,
+audio and video in the dependency task with id as task_id. The task MUST be selected from the
+following options: {{ Available Task List }}. There is a logical relationship between tasks, please
+note their order. If the user input can’t be parsed, you need to reply empty JSON. Here are several
+cases for your reference: 
+
+The chat history is recorded as {{ Chat History }}.
+From this chat history, you can find the path of the user-mentioned resources for your task planning.
