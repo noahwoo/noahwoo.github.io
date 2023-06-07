@@ -1017,7 +1017,7 @@ date: 3/2/2023
    - **A Generalist Agent, 2022, Google Deepmind**
 
 ## Arithmetic Reasoning
-   - **Training Verifiers to Solve Math Word Problems, 2021, OpenAI**
+   - **Training Verifiers to Solve Math Word Problems(GSM8K), 2021, OpenAI**
      - In one word: curate GSM8K and train a verifier to improve the performance of LLM on this dataset
      - Methods:
        - GSM8K: high-quality grade school math problems
@@ -1049,7 +1049,7 @@ date: 3/2/2023
                - verifier outperform finetuning at 2000 for 6B, and 1000 for 175B
              - solution level loss verifier win at begining, lose in half of the process
              - joint loss of language model and verification only outperform verification only loss
-   - **Solving Quantitative Reasoning Problems with Language Models, 2022, Google**
+   - **Solving Quantitative Reasoning Problems with Language Models(Minerva), 2022, Google**
      - In one word: finetuning(post pretraining) PaLM 540B with math technical content(arxiv latex & math-jax tag in html), evaluating model with fewshot prompt and majority voting on 200 undergraduate-level problems with ~33% success rate
      - Methods:
        - finetune with autoregressive LM objective
@@ -1076,10 +1076,84 @@ date: 3/2/2023
            - compare BLEU score of model solution with standard answer
    - **A Neural Network Solves, Explains, and Generates University Math Problems by Program Synthesis and Few-Shot Learning at Human Level, 2022, MIT**
      - In one word: problem to Python code(a translation of natural language to code), python code to answer
+   - **Solving math word problems with processand outcome-based feedback(ORM/PRM), 2022, Deepmind**
+     - In one word: comprehensive comparison between process and outcome supervision based on GSM8K dataset
+     - Methods: 
+       - PLM: Chinchilla(70B)
+       - 4 prompting/finetuning approaches
+         - few-shot prompting
+           - 5-shot prompted 
+         - supervised finetuning
+           - GSM8K: problem statements as input, reasoning trace as target
+         - RL via expert iteration: SFT with bootstraped samples
+           - Policy improvement
+             - Final-answer RL approach: filter traces lead to incorrect final answer
+             - ORM-RL approach: keep sample with highest ORM score
+             - PRM-RL approach: keep each step with the highest PRM score, until final answer or max-steps reached
+           - Distillation by SFT
+             - use the same settings as SFT
+             - initialized with SFT if avaliable
+         - RM for both reranking & RL, for each reasoning step
+           - Outcome-supervised RM: 
+             - final outcome as correct/incorrect label for each step
+             - initialize from SFT when avaliable
+           - Process-supervised RM:
+             - human annotate each step as correct/incorrect, stop if first incorrect step meet
+             - filter problem by SFT-SC: filter the problem with incorrect majority prediction  
+             - annoate 3 samples per problem 
+             - initialize from ORM model
+       - decoding process: generate $K=96$ samples, and
+         - majority voting: select random sample with *most common* final answer
+         - RM-weighted majority voting: *weighted most common* final answer
+         - sample with highest RM score
+       - 2 metrics to validate
+         - trace error rate
+         - final-answer error rate
+         - selective final-answer error rate
+     - Major conclusions
+       - best approach: SFT combined with RM based RL
+       - *Outcome-* and *Process-* supervised RM leads to similar final answer error rates
+       - both RM emulate process-based feedback, results in low trace error
+       - low trace error requires either process-based feedback, or a RM to emulate process feedback
    - **Let’s Verify Step by Step, 2023, OpenAI**
-     - In one word: show that process feedback works better than result feedback
+     - In one word: show that process feedback works better than result feedback, even for only final answer correctness on MATH dataset
+     - Methods:
+       - PLM: GPT-4 as solution *generator*
+         - finetuning GPT-4 with 1.5B math-related tokens
+         - small generator: 1/200 computations
+       - scope and key steps
+         - focus on train a most reliable Reward Model
+         - prediction by best-of-$N$ search over sampled solutions from generator
+           - outcome-based RM: rank and select the top-1 out of $N$ solutions
+           - process-based RM: score each step, product of each-step scores leads to the final score, select top-1
+         - judge RM by prediction accuracy
+       - build generator
+         - few-shot generate solution for training set
+         - filter incorrect solution
+         - finetune base model with correct solution for one epoch
+         - result in a generator with each step in one line
+       - 2 phase data collection(PRM800K)
+         - phase: 
+           1. step level sampling and human annotation
+           1. solution level labeling: 
+              - most convincing(high PRM score) but wrong answer solution
+              - retrain PRM model, re-sampling for solution level labeling 
+              - repeat 10 generations
+         - result: 12K problem, 75K solutions, 800K step-level labels
+       - Reward Models
+         - Outcome-supervised model: 
+           - judge correctness by answer checking
+           - predict correctness at each token
+           - train with cross-entropy loss for maximum likelihood
+           - final token in a solution used to predict the solution score
+         - Process-supervised model
+           - predict correctness based on last token in each step
+           - train with cross-entropy loss for maximum likelihood
+           - score by product of score in each step
      - Results:
        - 78.2% problem on a representative subset of MATH(8 points gain over Minerva)
+       - large reward model can act as human-supervision for small reward model
+       - active learning with *convincing wrong-answer* soltuion leads to 2.6x data efficiency
 
 ## Alignments
    - **In conversation with Artificial Intelligence: aligning language models with human values, 2022, Google/DeepMind**
