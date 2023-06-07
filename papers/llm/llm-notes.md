@@ -1,29 +1,27 @@
 ---
 title: Large Language Models on The Way
 author: Jianmin
-date: 3/2/2023
 ---
 
 # Outline
 
 - Pretraining
-  - [Transformers](#transformers)
-  - [OpenAI GPT series](#openai-gpt-series)
-  - [Google/Baidu/MetaAI](#google-researchbraindeepmindbaidu)
-  - [Distributed training & inference](#distributed-training-and-inference)
+  - [Transformers](transformers/transformers.md)
+  - [OpenAI GPT series](openai-gpt-series/openai-gpt.md)
+  - [Opensource LLM](opensource-llm/opensource.md)
+  - [Distributed training & inference](distributed-training-and-inference/distributed-training.md)
 - Finetuning
-  - [Instruct Finetuning](#instruct-finetuning)
-  - [RLFH series](#rlfh-series)
+  - [Instruct Finetuning](instruct-finetuning/instruct-tuning.md)
+  - [RLFH series](rlhf-series/rlhf.md)
 - Prompt Enginneering
-  - [Prompt(hard/soft) engineering](#prompthardsoft-engineering)
-  - [In context learning](#in-context-learning)
-  - [Cot/Reasoning](#cotreasoning)
+  - [Prompt engineering](prompt-engineering/prompt-eng.md)
+  - [In context learning](incontext-learning/incontext-learning.md)
+  - [Cot/Reasoning](cotreasoning/cot-reasoning.md)
 - Augment Language Model
-  - [World knowledge and augmented language model](#world-knowledge-and-augmented-language-model)
+  - [World knowledge and augmented language model](world-knowledge-and-augmented-language-model/augment-lm.md)
 - Others
-  - [Multilingual & Multimodal](#multilingual--multimodal)
-  - [Alignments](#alignments)
-  - [DNN](#dnn)
+  - [Multilingual & Multimodal](multilingual-multimodal/multilingual-modal.md)
+  - [Alignments](alignments/alignment-in-general.md)
 
 # Resources on track
 

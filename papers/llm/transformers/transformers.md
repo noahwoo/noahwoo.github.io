@@ -1,0 +1,82 @@
+
+# Transformers
+
+- **Thinking Like Transformers, 2021**
+- **Training compute-optimal large language models, 2022, Deepmind**
+- **Formal Algorithms for Transformer, 2022, Deepmind**
+    - In one word: a self-contained, mathematically precise overview of transformer architectures in pesudo-code
+    - Notes: 
+        - pesudo-code for each modules of Transformer: 
+        - Token embedding
+        - Position embedding
+        - Attention
+            - Single query attention
+            - Attention for sequence
+            - Multi-head attention
+        - Layer-norm
+        - FFN(absent due to simplicity)
+        - Unembedding(decoding, or head in transformers lib. of huggingface)
+        - pesudo-code for several transformer like architectures
+        - Encoder-Decoder Transformer
+        - Encoder Transformer
+        - Decoder Transformer
+        - misc
+        - depict in matrix-vector product, instead of the mostly used vector-matrix product form
+        - use bias $b$ in QKV projection: $k = W_k x+b_k$
+- **[A precise and nano implementation of GPT2](https://github.com/karpathy/nanoGPT)**
+- **Transformers: State-of-the-Art Natural Language Processing, 2020, Huggingface**
+    - Targets
+        - Extensible for researcher
+        - Simple for practioner
+        - Fast & robust for industrial deployment
+    - Core modules
+        - Transformers: MLM/Autoregression/Seq2Seq/Multimodal/Long-Distance/Efficient/Multilingual
+        - Tokenizers: Char. Level BPE/Byte Level BPE/WordPiece/SentencePiece/Unigram/Char./Custom
+        - Heads (Domain specific) : LM/Seq. Classification/QA/Token Classification(NER)/Multiple Choice/MLM/Cond. Generation
+    - Deployment
+        - model easy to switch from framework(say PyTorch) to the other one(say Tensorflow)
+        - export to intermediate neural network format
+        - use adapters to convert models to CoreML weights for edge devices
+- **[A Mathematical Framework for Transformer Circuits](https://transformer-circuits.pub/2021/framework/index.html)**
+- **[In-context Learning and Induction Heads](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html)**
+- **Efficient Transformers: A Survey, 2020, Google**
+    - In one word: characterizes a large and thoughtful selection of recent efficiency-favored "X-former" models, providing an organized and comprehensive overview of existing work and models across multiple domains
+- **Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context, 2019, Google**
+    - In one word: a transformer architecture that enables learning dependency beyond a fixed length without disrupting temporal coherence
+    - Method in details:
+        - a segment level recurrence mechanism 
+        - hidden state sequence of previous segment fixed and cached to be reused as extra (k,v) context in next segment
+        - cached state sequence as a meory augumented neural networks $\bold{m} \in R^{M \times d}$
+            - training: $M$ equals to segment length
+            - inference: increase $M$ by several times for larger context(benefit from the inductive bias from relative positional encoding)
+        - a novel relative Positional Encoding(PE) scheme
+        - Absolute PE attention matrix $A_{i,j}$: $$(E_i+P_i)W_{Q}W_{K}^T(E_j^T+P_j^T)=E_i W_Q W_K^T E_j^T + E_i W_Q W_K^T P_j^T + P_i W_Q W_K^T E_j^T + P_i W_Q W_K^T P_j^T$$
+        - For proposed relative PE, make three changes
+            - $P_j$ -> $R_{i-j}$ for relative position from $i$ to $j$, $i \ge j$ in causal attention
+            - positional constant $P_i W_Q$ change to $\bold{u}$ and $\bold{v}$, each for one of the two occurrences
+            - split $W_K$ to $W_{K,E}$ and $W_{K,R}$ to use different key weight matrices for content and position
+            - resulting relative PE formulation: $$E_i W_Q W_K^T E_j^T + E_i W_Q R_{i-j}^T + \bold{u} W_K^T E_j^T + \bold{v} W_K^T R_{i-j}^T$$
+    - Main results
+        - WikiText-103: new ppl(perplexity) SOTA from 20.5 to 18.3
+        - enwik8: 12 layers reach new bpc(byte per character) SOTA 0.99, used only 17% parameters compared to a 64 layer network
+        - text8: new bpc SOTA 1.08 by large margin
+        - One Billon Word(short term dependency): new single-model SOTA of ppl 21.8 by large margin
+        - Word level Penn Treebank: new SOTA without two-step finetuing
+- **Unified Language Model Pre-training for Natural Language Understanding and Generation, 2019, MSRA**
+    - In one word: a parameter-shared transformer framework for unified training of NLG and NLU tasks with attention masking
+    - Method in details: 
+        - Transformer Decoder: self-attention support bi-direction, uni-direction(causal) masking
+        - 4 pre-training objectives
+        - Unidirectional LM: ```x1x2x3[mask]x4```, ```[mask]``` attend to ```x1x2x3[mask]```
+        - Bidirectional LM: ```x1x2x3[mask]x4```, ```[mask]``` attend to ```x1x2x3[mask]x4```
+        - Seq2seq LM: ```[SOS]x1x2x3[EOS]x4x5x6[EOS]```
+            - ```x2``` attend to ```[SOS]x1x2x3[EOS]```
+            - ```x5``` attend to ```[SOS]x1x2x3[EOS]x4x5```
+        - Next Sentence Prediction
+        - 2 finetuning tasks
+        - NLU: text classification
+            - ```[SOS]``` embedding as sentence presentation
+            - classification head and model parameters updated 
+        - NLG: summarization
+            - ```[SOS]S1[EOS]S2[EOS]```, random mask token at ```S2[EOS]``` 
+            - masking of ```[EOS]``` enables model to terminate generation

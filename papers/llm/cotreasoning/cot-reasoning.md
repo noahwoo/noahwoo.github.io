@@ -1,0 +1,318 @@
+## CoT/Reasoning: 
+- **Chain of thought prompting elicits reasoning in large language models, 2022, Google** (OK)
+    - Prompt with chain of thought helps improve perf. on arithmetric, commonsense and symbolic reasoning
+    - Ablation study shows: 
+        - equation only prompting not work
+        - expressing intermediate steps via natual language helps
+        - sequential reasoning embodied in chain of thought is useful for reasons beyond just activating knowledge
+- **Self-consistency improves chain of thought reasoning in language models, 2023, Google**
+- **Reasoning with Language Model Prompting: A Survey, 2022, Alibaba**
+    - In one word: survey of cutting-edge research on reasoning with language model prompting
+    - Methods
+        - Strategy Enhenced Reasoning: design better reasoning strategy, like CoT/Multi-stage CoT
+        - Prompt Enginneering: 
+            - Single stage: 
+                - CoT works; more Chain steps, better results
+                - Exemplars' quality, diversity and order matters
+                - Even zero-shot works by prompting with 'Let's think step by step'
+            - Multi stage: decompose into subtasks, remedy compositionality gap
+                - Reasoning step by step in sequential, concate subtask question to the end of prompt
+                - Split and merge tasks with different prompts
+        - Process optimization: Natural language rationales
+            - Reasoning consistency and continuity matters
+            - Self Optimization
+            - Iterative Optimization
+                - StAR: a small set of exemplars to generate reasoning steps, ones lead to correct answer used for fine-tuning
+                - generates multiple reasoning processes, the most consistent ones used for fine-tuning
+                    - Selfconsistency improves chain of thought reasoning in language models, 2022, Google
+            - Ensemble Optimizization
+                - not all reasoning steps should undertake the incorrectness of answers
+                - sampling multiple reasoning processes, generate most consistant answer by vote
+        - External engine: 
+            - 2 goals in LLM: semantic understanding and complex reasoning, first one can leverage external system
+            - examples of external engine(no world knowledge, just rules)
+                - Physical simulator: 
+                - Code interpreters: PAL/POT
+        - Knowledge Enhenced Reasoning
+        - Implict knowledge: elicit knowledge from LM by few-shot prompting, then prompot downstream LM
+        - Explict knowledge: retrieval augumented LM
+            - Learning to retrieve prompts for in-context learning, 2022
+            - Rainier: Reinforced knowledge introspector for commonsense question answering, 2022
+    - Tasks
+        - Arithmetic/Commonsense/Symbolic/Logical/Multimodel reasoning
+        - Visualcomet: Reasoning about the dynamic context of a still image, 2020 (GPT-4 image reasoning demo)
+- **Towards Reasoning in Large Language Models: A Survey, 2022, UIUC**
+- **ReAct: Synergizing reasoning and action in language models, 2022, Google** (OK)
+    - In one word: use LLMs to generate both reasoning and action plan in an interleaved manner, allowing the synergy between the two
+    - Method introduction:
+        - augment the space of action with space of language: $\hat{A} = A \cup L$
+        - name language space $\hat{a}_t$ as the *thoughts* or *reasoning trace*: $c_{t+1} = (c_t, \hat{a}_t)$
+        - decompose task goals and create action plans
+        - inject task related commonsesense knowledge
+        - extract important parts from observations
+        - track progress and transit action plans
+        - handle exception and adjust action plans
+        - prompt a frozen language model with in-context examples to generate both domain-specific actions and free thoughts
+        - reasoning task: alternate between thought/action 
+        - decision making task: few thoughts, more actions, language model makes decision
+    - Knowledge intenstive reasoning tasks
+        - Domain: HotpotQA/Fever
+        - Action space: **search**/**lookup**/**finish** on Wikipedia web API
+        - ReAct prompting:
+        - HotpotQA/Fever: 6/3 examples with manually composed ReAct-format trajectories in prompt
+        - thought/action/observation steps, with thoughts for
+            - decompose question
+            - extract information from Wikipedia observations
+            - commonsense and arithmetic reasoning
+            - search reformulation
+            - synthesis final answer
+        - Results
+        - ReAct under/equal-perform CoT-SC on HotpotQA/Fever
+        - CoT-SC -> ReAct outperform CoT-SC
+        - ReAct -> CoT-SC outperform CoT-SC
+    - Decision making tasks
+        - Domain: ALFWorld/WebShop(1.18M real-world products, 12k human instructions)
+        - Act to long horizons with sparse rewards
+        - ReAct prompting:
+        - ALFWorld: Annotate 3 trajectories for each task type, with thoughts for
+            - decompose goal
+            - track subgoal completion
+            - determine next subgoal
+            - reason via commonsense
+        - WebShop: prompt with actions to search, choose product, choose options, and buy, and thoughts for 
+            - what to explore 
+            - when to buy
+            - what product options are relevant
+        - Results
+        - ReAct outperform Act and ReAct-IM(ReAct with IM-style prompt)
+        - ReAct outperform BUTLER
+        - ReAct outperform IL/RL
+
+    - Decision making tasks
+- **Show Your Work: Scratchpads for Intermediate Computation with Language Models, 2021, Google Brain**
+    - In one word: fine-tune Transformers to perform multi-step computations(long digits addition/program exec.) with intermediate computation steps as prompt written into a “scratchpad”
+    - Conclusions: 
+        - encoding long digits addition process step by step (add&carry) as text and doing supervised fine-tuning improve the performance of long digits addition tasks
+        - encoding polynomial evaluation process step by step (item by item) as text and fine-tuning improve the performance of polynomial evaluation tasks
+        - emitting full program traces line by line annotated with local variables improve the performance of computer program execution prediction
+    - Method & Experiments
+        - Use decoder-only transformer models, pretrained model ranging in size from 2M to 137B parameters
+        - Addition task
+        - Train with 1-8 digits addition task ,test with 1-8 in-distribution and 9-10 out-of-distribution tasks
+        - Fine-tuning with 100K examples for 5K steps, batch size 32
+        - Test with 10K in-distribution and 1K out-of-distribution examples
+        - Scratchpad fine-tuning models perform well with the scaling of model size
+- **StAR: Bootstrapping reasoning with reasoning, 2022, Google**
+    - In one word: iteratively leverage a small number of rationale examples and a large dataset without rationales, to bootstrap the ability to perform more complex reasoning
+    - Methods:
+        - In brief:
+        1. prompt with few-shot rationale examples, answer questions
+        2. if answer wrong, generate rationale with correct answer (Rationalization)
+        3. fine-tuning on &lt;P, rationale, C&gt; with rationale leading to or rationalized with correct answer from step 1 and step 2
+        4. repeat from step 1 (hence the 'bootstrap')
+        - In details: 
+        - almost the same as in brief
+        - a view in RL: $J(M,X,Y) = \sum_i \mathcal{E}_{\hat{r_i}, \hat{y_i} \sim P_M(.|x_i)} \mathcal{1}(y_i=\hat{y}_i)$
+        - Rationalization implemented by mark the correct answer with '(CORRECT)' in prompt
+        - Experiments:
+        - Arithmetic: n-digits sum with scratchpad
+        - CommonsenseQA: 12k question with five choices
+        - GSM8K: grade-school-level word problem
+- **Self-ask: Measuring and narrowing the compositionality gap in language models, 2022, MetaAI**
+    - In one word: measure and solve the problem of compositional gap: the fraction of incorrectly answered questions with correct sub-problems answers by model
+    - Methods: CoT and self-ask works, self-ask perform better with the help of search engine
+        - In breif: Similar to least-to-most, prompt with examples
+        - started with 'Are follow up questions needed here: Yes/No'
+        - followed with Intermediate Question and Answer from LM or Search Engine
+        - repeat until all the follow-up question answered
+        - 'So the final answer is:' followed up with final answer
+        - Details:
+        - measure the compositionality gap:
+            - a model can compose facts at a much higher rate when it can recall these facts more confidently
+        - CoT & Self-ask
+            - CoT and self-ask let the model apply more computation to harder problems by demonstrating the reasoning chain
+        - Employ search engine for realtime world knowledge
+            - answer the follow-up questions by search engine(feature snippets or snippets from top ranked result)
+    - Experiments & datasets
+        - Compositional Celebrities dataset
+        - 2WikiMultiHopQA
+        - Bamboogle: a dataset of 125 questions
+        - reading random Wikipedia articles and writing a 2-hop question about them
+        - fitler the questions that can be answered by search engine correctly
+- **Least-to-most prompting enables complex reasoning in large language models, 2022, Google**
+    - In one word: Solve problem harder than the demonstration examples in CoT prompt
+    - Methods: least to most prompting, using a progressive sequence prompts to help language model learn a new skill
+        - In brief: based on few-shot prompting
+        - reduce the complex problem in many sub-problems by querying LLM
+        - each sub-problem solved sequentially by querying LLM, with answers from the previous sub-problem as facilitating prompts
+        - In details
+        - Stage 1: reduce to subproblems: prompt LM with examples of how to reduce the complex problem into subproblems, follow by a specific problem to reduce
+        - Stage 2: solve subproblems sequentially, with complex problem appended as the last one
+            - prompt LM with examples of how the first subproblem solved, followed by the first subproblem
+            - take the answer from LM, append it to the previous prompts, followed by the next subproblem
+            - continue util reach the last subproblem, i.e., the complex problem, return the answer then
+        - Experiments: Output zero-shot and CoT in all datasets
+        - Symbolic manipulations: last-letter-concatenation
+        - Compositional generalization: SCAN
+        - Math reasoning: DROP & GSM8K
+- **Multimodal chain-ofthought reasoning in language models, 2023, Amazon(Alex Smola)**
+- Automatic CoT
+    - **Automatic Prompt Augmentation and Selection with Chain-of-Thought from Labeled Data, 2023**
+        - In one word:  
+
+- **Tree of Thoughts: Deliberate Problem Solving with Large Language Models, 2023**
+    - In one word: decision making by multiple different reasoning paths and self-evaluation choices of next action with looking ahead or backtracking
+    - 4 steps for reasoning path generation and evaluation:
+        - Task dependent thought decomposition
+        - Crosswords/Game of 24/Creative Writing
+        - 2 ways for thought generator:
+        - sampling iid thoughts from CoT prompt
+        - propose prompt for constrained thoughts space
+        - 2 ways to evaluate state using LM deliberately:
+        - **Value** each state with reasoning prompt for scalar value
+        - **Vote** based on comparison of state for harder-to-value case
+        - 2 mode to search the thoughts tree
+        - BFS: with depth limits $T \le 3$ and initial thoughts to small set($b \le 5$)
+        - DFS: explore the promising state first, with value threshold pruning for efficiency
+    - Conclusion:
+        - Outperform CoT/CoT-SC etc. on **Game of 24**, **Crosswords** and **Creative Writing** tasks
+
+## Arithmetic Reasoning
+
+- **Training Verifiers to Solve Math Word Problems(GSM8K), 2021, OpenAI**
+    - In one word: curate GSM8K and train a verifier to improve the performance of LLM on this dataset
+    - Methods:
+    - GSM8K: high-quality grade school math problems
+        - high-quality/high-diversity/moderate difficulty/natural language solution
+        - takes 2 to 8 steps to solve
+        - training: 7.5k, test: 1k 
+    - Two methods proposed
+        - finetuning(baseline)
+        - auto regressive LM loss on solution part
+        - training 20 epoches with size range from 500 to 7,500
+        - test by a single sample completion(greedy with T=0) from the finetuned model
+        - evaluate test@1 and test@100 for performance comparison
+        - observations: 
+            - 175B model perform best
+            - performance improves with increasing of training size
+            - test@1 perf improves with increasing of training epoches
+            - test@100 perf improves with increasing of training epoches at first, then drops quickly
+            - because of the diversity loss due to more training epoches
+        - veifier model
+        - finetune a generator model on training set for 2 epoches
+        - sample 100 completions from generator for each training problem
+        - label the completions sequence by checking the final answer
+            - result in a 7500*100=750,000 labeled dataset
+        - training a verifier with the labeled dataset for a single epoch
+        - test by sample 100 completions, ranked by verifier and use top-1 as answer
+        - observations
+            - scaling
+            - verifier scales more rapidly with increasing of training size
+            - verifier outperform finetuning at 2000 for 6B, and 1000 for 175B
+            - solution level loss verifier win at begining, lose in half of the process
+            - joint loss of language model and verification only outperform verification only loss
+- **Solving Quantitative Reasoning Problems with Language Models(Minerva), 2022, Google**
+    - In one word: finetuning(post pretraining) PaLM 540B with math technical content(arxiv latex & math-jax tag in html), evaluating model with fewshot prompt and majority voting on 200 undergraduate-level problems with ~33% success rate
+    - Methods:
+    - finetune with autoregressive LM objective
+    - finetuning dataset: 
+        - arxiv 1.2M paper, 58GB; math-jax, 60GB
+        - 26B tokens used for 540B PaLM finetuning(more tokens used for small PaLM model?!)
+    - evaluation dataset:
+        - MATH: 12k middle/high school mathematics problem, fixed 4-shot prompt
+        - GSM8k: middle school math word problem, CoT/no calculator used
+        - MMLU-STEM: STEM subset of MMLU, 5-shot from dev. set for prompt
+        - Undergraduate-level STEM problem: 272 in all, 191 with numeric solution, 81 symbolic solution
+    - inference details & criteria
+        - majority voting: saturate at $k=64$ for MATH, $k=16$ for GSM8k
+        - pass@k: perf. improves with increasing of $k$
+        - majority voting perform better than log-likelihood ranking, how about verifier?
+    - Results:
+    - 540B majority1@k perform best: 70+% accuracy on Algebra/PreAlgebra in MATH
+    - post pretraning works: Finetuning MATH on Minerva gains little, finetuning on PaLM get significant improvement
+    - memorization or genuine analytic capability
+        - conclusion: little evidence of performance attribution to memorization
+        - three methods tried:
+        - search model generated solution with BLEU score over training corpus
+        - alternate the problem framing and numerical value
+        - compare BLEU score of model solution with standard answer
+- **A Neural Network Solves, Explains, and Generates University Math Problems by Program Synthesis and Few-Shot Learning at Human Level, 2022, MIT**
+    - In one word: problem to Python code(a translation of natural language to code), python code to answer
+- **Solving math word problems with processand outcome-based feedback(ORM/PRM), 2022, Deepmind**
+    - In one word: comprehensive comparison between process and outcome supervision based on GSM8K dataset
+    - Methods: 
+    - PLM: Chinchilla(70B)
+    - 4 prompting/finetuning approaches
+        - few-shot prompting
+        - 5-shot prompted 
+        - supervised finetuning
+        - GSM8K: problem statements as input, reasoning trace as target
+        - RL via expert iteration: SFT with bootstraped samples
+        - Policy improvement
+            - Final-answer RL approach: filter traces lead to incorrect final answer
+            - ORM-RL approach: keep sample with highest ORM score
+            - PRM-RL approach: keep each step with the highest PRM score, until final answer or max-steps reached
+        - Distillation by SFT
+            - use the same settings as SFT
+            - initialized with SFT if avaliable
+        - RM for both reranking & RL, for each reasoning step
+        - Outcome-supervised RM: 
+            - final outcome as correct/incorrect label for each step
+            - initialize from SFT when avaliable
+        - Process-supervised RM:
+            - human annotate each step as correct/incorrect, stop if first incorrect step meet
+            - filter problem by SFT-SC: filter the problem with incorrect majority prediction  
+            - annoate 3 samples per problem 
+            - initialize from ORM model
+    - decoding process: generate $K=96$ samples, and
+        - majority voting: select random sample with *most common* final answer
+        - RM-weighted majority voting: *weighted most common* final answer
+        - sample with highest RM score
+    - 2 metrics to validate
+        - trace error rate
+        - final-answer error rate
+        - selective final-answer error rate
+    - Major conclusions
+    - best approach: SFT combined with RM based RL
+    - *Outcome-* and *Process-* supervised RM leads to similar final answer error rates
+    - both RM emulate process-based feedback, results in low trace error
+    - low trace error requires either process-based feedback, or a RM to emulate process feedback
+- **Let’s Verify Step by Step, 2023, OpenAI**
+    - In one word: show that process feedback works better than result feedback, even for only final answer correctness on MATH dataset
+    - Methods:
+    - PLM: GPT-4 as solution *generator*
+        - finetuning GPT-4 with 1.5B math-related tokens
+        - small generator: 1/200 computations
+    - scope and key steps
+        - focus on train a most reliable Reward Model
+        - prediction by best-of-$N$ search over sampled solutions from generator
+        - outcome-based RM: rank and select the top-1 out of $N$ solutions
+        - process-based RM: score each step, product of each-step scores leads to the final score, select top-1
+        - judge RM by prediction accuracy
+    - build generator
+        - few-shot generate solution for training set
+        - filter incorrect solution
+        - finetune base model with correct solution for one epoch
+        - result in a generator with each step in one line
+    - 2 phase data collection(PRM800K)
+        - phase: 
+        1. step level sampling and human annotation
+        1. solution level labeling: 
+            - most convincing(high PRM score) but wrong answer solution
+            - retrain PRM model, re-sampling for solution level labeling 
+            - repeat 10 generations
+        - result: 12K problem, 75K solutions, 800K step-level labels
+    - Reward Models
+        - Outcome-supervised model: 
+        - judge correctness by answer checking
+        - predict correctness at each token
+        - train with cross-entropy loss for maximum likelihood
+        - final token in a solution used to predict the solution score
+        - Process-supervised model
+        - predict correctness based on last token in each step
+        - train with cross-entropy loss for maximum likelihood
+        - score by product of score in each step
+    - Results:
+    - 78.2% problem on a representative subset of MATH(8 points gain over Minerva)
+    - large reward model can act as human-supervision for small reward model
+    - active learning with *convincing wrong-answer* soltuion leads to 2.6x data efficiency

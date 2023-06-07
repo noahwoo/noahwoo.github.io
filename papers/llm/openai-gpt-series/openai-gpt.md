@@ -1,0 +1,62 @@
+
+## OpenAI GPT series: 
+
+- GPT-1: **Improving Language Understanding by Generative Pre-Training, 2018, OpenAI**
+- GPT-2: **Language Models are Unsupervised Multitask Learners, 2019, OpenAI**
+- GPT-3: **Language Models are Few-Shot Learners, 2020, OpenAI**
+- **InstructGPT: Training language models to follow instructions with human feedback, 2022, OpenAI**
+    - Reference:
+        - **Deep Reinforcement Learning from Human Preferences, 2020, Deepmind/OpenAI**
+        - **Fine-Tuning Language Models from Human Preferences, 2020, OpenAI**
+        - **Learning to summarize from human feedback, 2021, OpenAI**
+        - **Instruct-tuning: Finetuned language models are zero-shot learners, 2022, Google**
+- **Fine-Tuning Language Models from Human Preferences, 2020, OpenAI**
+    - Tasks: Stylistic continuation(in sentiment or genre) and Summarization
+    - Optimize over $(x, {y_i}, b)$, LogLikelihood
+    - Logits consist of reward from LM $r(x,y)$ and KL dist. between new and old model
+    - experiments:
+        - summarization: pretrain 774M GPT-2 LM, then RL fine-tune
+        - stylistic continuation: train with WebText from scrath, SFT on BookCorpus, then RL fine-tune
+- **Learning to summarize from human feedback, 2021, OpenAI**
+    - Goal: advance methods for training language models on objectives that more closely capture the behavior we care about. 
+    - Task: Text summarization on Reddit TL;DR dataset
+    - Annotation quality: aggreement level between labeler and researcher
+        - charge by working hours instead of # of annotated samples.
+        - hands-on with annotators closely
+        - a detailed procedure for anotation
+    - Four steps in loop
+        - pre-trained model: 
+        - Corpus: C4/Webtext/books/Wikipedia
+        - 1~3 epoch on each, 300B tokens, context 2048
+        - supervised model
+        - predict summary from Reddit summaries
+        - initialized from pre-trained model, cosine LR schedule, log lineear sweep
+        - batch size 128
+        - sampling with T=0 for pair-wise evaluaiton by human
+        - supervised model outperform SOTA on ROUGE score of CNN/DM dataset
+        - reward model
+        - initialized from supervised model, replace the decoding matrix with a linear head to output scalar value
+        - use pair-wise loss of preferred summary to unpreferred one
+        - Reinforcement Learning from Human Feedback
+        - use separated transformer parameters for policy and value networks
+        - BPE token generation as each step of episode, final reward model score as part of the RL Reward
+        - KL distance between policy and init. supervised model also included in final Reward
+        - policy network initialized with supervised model
+        - value network initialized with reward model
+    - Results & Conclusions   
+- Intelligence in GPT series
+    - GPT-3: (davinci)
+        - generation ability
+        - world knowledge
+        - in-context learning
+    - Instruct tuning (davinci-instruct-beta)
+        - instruction follow and unseen task generalization
+    - Add code training (code-davinci-002)
+        - code understanding
+        - complex reasoning/CoT(possibly)
+        - best of all: text doc and code combined
+    - Supervised tuning (text-davinci-002) + RLFH (text-davinci-003)
+        - ability to alignment with human
+        - reject unknown/illegal/unethical question
+- ChatGPT Plugins
+    - [An end-to-end 3'rd demo](https://techcommunity.microsoft.com/t5/fasttrack-for-azure/how-chatgpt-plugins-could-work/ba-p/3761483)

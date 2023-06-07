@@ -1,0 +1,132 @@
+
+## Google Research/Brain/DeepMind/Baidu:
+
+- BERT series: 
+    - **BERT: Pre-training of deep bidirectional transformers for language understanding, 2019, Google** (OK)
+    - **RoBERTa: A Robustly Optimized BERT Pretraining Approach, 2019, Facebook** (OK)
+- LaMDA series: (Language model for Dialog Application)
+    - **Towards a Human-like Open-Domain Chatbot, 2020, Google**
+    - **Finetuned language models are zero-shot learners, 2022, Google** (LaMDA-PT -> FLAN) (OK)
+        - instruct tuning for multi-task generalization, with 60+ NLP tasks
+    - **Scaling Instruction-Finetuned Language Models, 2022, Google** (Flan series: T5/PaLM) (OK)
+        - scaling instruction tasks to 1.8k 
+        - scaling model size from 80M to 540B
+        - fine-tuning on CoT data
+    - **The Flan Collection: Designing Data and Methods for Effective Instruction Tuning, 2023, Google**
+- GLaM series: (More Efficient In-Context Learning, sparse language model(FFN -> MoE))
+    - **Efficient Scaling of Language Models with Mixture-of-Experts, 2022, Google**
+- PaLM series: (540-Billion parameters, attention and ffn computed in parallel)
+    - **PaLM: Scaling Language Modeling with Pathways, 2022, Google, Jeff Dean**
+- Chinchilla: (optimal model size and #tokens for training a transformer language model under a given compute budget)
+    - **Training Compute-Optimal Large Language Models, 2022, (Google/DeepMind)**
+- Gopher: (an analysis of Transformer-based language model performance across a wide range of model scale)
+    - **Scaling Language Models: Methods, Analysis & Insights from Training Gopher, 2022, (Google/DeepMind)**
+- T5 series: (training all kinds of task in unified text-to-text way)
+    - **Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer, 2020, Google (T5)**
+- **ERNIE 3.0 Titan: Exploring Larger-scale Knowledge Enhanced Pre-training for Language Understanding and Generation, 2021, Baidu**
+    - In one word: scaling up of ERNIE 3.0 with self-supervised adversarial loss and controllable language modeling loss
+    - Method in details
+        - 2 types of transformer modules
+        - Universal representation module: 48 layers, 12288 model dim, 192 heads, 16 * 12288 for hidden layer in ffn
+        - Task-specific Representation modules: 12 layers, 768 model dim, 12 heads
+        - 3 level of pretraining tasks from lexical, syntactic to sentiment
+        - Word aware tasks(language modeling)
+            - knowledge integrated masked language modeling task
+            - document language modeling task: ERNIE Doc, enhanced recurrence memory mechanism for long sequence
+        - Structure aware tasks(classification)
+            - sentence reordering tasks: #class = $\sum_{n=1}^m n!$ for $m$ segments paragraph
+            - sentence distance tasks: #class = 3, {adjacent, nonadjacent but in the same document, in different documents}
+        - Knowledge aware tasks
+            - self-supervised adversarial task: binary classification 
+                - differentiate LM generated text from original training corpus
+            - controllable language model task: conditional(prompt) language modeling
+                - condition on extra prompt for text generation
+                - soft prompt used for each dataset
+                - datasets involved: Genre/Topic/Keyword/Sentiment/Length
+                    - `[Genre-0], [Genre-1], [Genere-N] [t] Topic texts [/t] [k] Keyword text0, Keyword text1[/k] [senti]Sentiment label text [/senti] [w] About L words [/w] {{Original Text}}`
+        - 4D hybrid parallelism for training
+        - shared data parallel with ZeRO(2D)
+        - intra-layer tensor parallel
+        - inter-layer pipeline parallel
+        - 2D parallelism for inference: no need for data parallel 
+
+- **BLOOM: A 176B-Parameter Open-Access Multilingual Language Model, 2022, MetaAI**
+    - In one word: towards democratizing LLM with BLOOM, a 176B-parameter open access decoder only language model
+    - BLOOM traininng details
+        - Datasets
+        - Model architecture
+        - Tokenization
+        - Engineering
+        - Training
+    - Evaluation
+        - SuperGLUE
+        - Machine Translation
+        - Summarization
+        - Code generation
+        - Text embedding representation
+        - Multilingual probing
+- **LLaMA: Open and Efficient Foundation Language Models, 2022, MetaAI**
+    - In one word: possible to train LLM with publicly avaliable dataset exclusively, with inference budget in consideration
+    - Approach: 
+        - 7 pretraining datasets: publicly available
+        - English CommonCrawl(67%): pre-process with CCNet pipeline
+            - dedup at sentence level
+            - remove non-English pages
+            - filter low-quality content with n-gram
+            - discard pages not classified as Wiki references?!
+        - C4(15%): diverse pre-process CommonCrawl improve performance, pre-process the same as CCNet, except
+            - filter low-quality content by heuristics
+        - Github(4.5%): public Github data from Google BigQuery
+            - filter low quality files by line length or proportion of alphanumeric chars
+            - remove boilerplate
+            - dedup at file level, exact match
+        - Wikipedia(4.5%): June-August 2022 dump
+            - remove hyperlinks, comments, and other formatting boilerplates
+        - Gutenberg and Books(4.5%):
+            - dedup as book level, remove books with 90% content overlap
+        - ArXiv(2.5%)
+            - start from first section, no bibliography
+            - remove comments and inline definition and macros
+        - Stack Exchange(2%)
+            - 28 largest websites kept
+            - remove HTML tags
+            - sort answers by score
+        - Tokenizer: BPE encoding from SentencePiece, 1.4T tokens overall, 2 epoches for Wikipedia and Book tokens
+        - Architecture: 
+        - Encoder only
+        - Pre-normalization: normalize the input of each sublayer of transformer
+        - SwiGLU activation: 4*2/3*d hidden dim. in FFN(PaLM)
+        - Rotary positional embedding(GPTNeo)
+        - Optimizer: 
+        - AdamW with $\beta_1$=0.9, $\beta_2$=0.95
+        - consine learning rate schedule
+        - weight decay 0.1
+        - gradient clip 1.0
+        - 2000 warmup steps, LR varies with batch size
+        - Efficient implementation
+        - not storing attention weights
+        - not computing masked key/query scores
+        - same expensive activations such as output of linear layers, by manually implement the backward function
+        - 380 tokens/sec/GPU on 2048 A100 with 80GB RAM, 1.4T token requires 21 days
+        - Evaluation tasks: 
+        - Common sense reasoning: BoolQ/PIQA/SIQA/HellaSwag/WinnoGrande/ARC easy and challenge/OpenBookQA
+        - Closed-book QA: Natural Question/TriviaQA
+        - Math. reasoning: MATH/GSM8K
+        - Code generation: HumanEval/MBPP
+        - MMLU: perform low, limited amount of books used for pre-training
+        - Bias, Toxicity and Misinformation
+        - RealToxicityPrompts: toxicity increase with increase of model size
+        - CrowS-Pairs: bias evaluation
+        - WinoGender: gender bias
+        - TruthfulQA: truthful and informative
+- **GLM: General Language Model Pretraining with Autoregressive Blank Infilling, 2022, Tsinghua**
+    - In one word: a general language model based on autoregressive blank infilling objective for the NLU, generation and conditional generation tasks in one model
+    - Methods: 
+        - span infilling as in T5
+        - random span order in autoregression
+        - 2D position defined for span tokens to generate span with no predefined span length
+        - Multi-task pretraining: longer span infilling
+        - Document Level: 50% ~ 100% length of original text as span
+        - Sentence Level: whole sentence as span, sample 15% tokens 
+        - Finetune with classification tasks
+        - Sentiment classification: `{SENTENCE}. It is really [MASK].`
