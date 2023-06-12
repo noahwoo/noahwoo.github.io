@@ -76,3 +76,5 @@
     - Theoretical results
         - Prove of convergence
         - Communication bandwith reduce to 1/32 for FP32 and 1/16 for FP 16 
+- Scaling law
+  - **Scaling Laws for Neural Language Models, 2021, OpenAI**

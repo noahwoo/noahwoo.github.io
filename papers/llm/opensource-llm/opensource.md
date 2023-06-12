@@ -19,6 +19,34 @@
     - **PaLM: Scaling Language Modeling with Pathways, 2022, Google, Jeff Dean**
 - Chinchilla: (optimal model size and #tokens for training a transformer language model under a given compute budget)
     - **Training Compute-Optimal Large Language Models, 2022, (Google/DeepMind)**
+      - In one word: study the optimal(in term of loss) combination of model size $N$ and training token $D$ given computation quota $C$
+      - Method:
+        - Settings:
+          - Adapt learning rate schedule to the different token numbers used
+          - Model size range from 75M to 16B for testing
+        - Testing approach 
+          - Approach1: fix model size, vary number of training tokens
+            - a bit tricky
+          - Approach2: IsoFlops
+            1. For each *Flops* contraints, vary model size, training with increased tokens until *Flops* used up
+            2. Calculate the checkpoint *loss*, plot the points with x-axis for *log(model-size)* and y-axis for *loss*
+            3. The valley point for each *Flops* as the optimal model size
+            4. The optimal #tokens approximately obtained by $C=6ND$
+          - Approach3: Fitting a parametric loss function
+            - underestimate the model size
+      - Result:
+        - Increasing *Flops*, model size and token number should increase equally in proportion
+        - Gopher/GPT-3/Megatron-Turing NLG etc. over sized
+        - 10B model consumes 205B token in optimal setting
+      - Validation by *Chinchilla*
+        - Referring *Gopher*, training a 70B model with optimal 1.4T tokens
+        - Resulting model outperform *Gopher* 280B on 6 kinds of evaluation set
+          - Language Modeling
+          - Reading Comprehension
+          - Question Answering
+          - Common sense 
+          - MMLU
+          - BIG-Bench
 - Gopher: (an analysis of Transformer-based language model performance across a wide range of model scale)
     - **Scaling Language Models: Methods, Analysis & Insights from Training Gopher, 2022, (Google/DeepMind)**
 - T5 series: (training all kinds of task in unified text-to-text way)

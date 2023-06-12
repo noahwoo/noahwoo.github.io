@@ -30,3 +30,12 @@
             - Preference of pretraining data for eliciting in-context learning
     - **What Can Transformers Learn In-Context? A Case Study of Simple Function Classes, 2023, Stanford**
     - **Why Can GPT Learn In-Context? Language Models Secretly Perform Gradient Descent as Meta-Optimizers, 2022, Tsinghua**
+    - **Scan and Snap: Understanding Training Dynamics and Token Composition in 1-layer Transformer, 2023, MetaAI**
+      - In one word: analyze SGD training dynamics, for 1-layer position encoding free transformer with one self-attention plus one decoder layer on next token prediction task
+      - Methods
+        - 
+      - Conclusion
+        - self-attention as *discriminative scanning algorithm*
+          - **Discriminative Bias**: attends more to tokens distinct for next token, less to common ones
+          - **Frequency Bias**: drop attention weight of keys from low to high co-occurrence with query in training set
+          - no collapse to one-hot attention due to a phase transition(similar to Induction Head)

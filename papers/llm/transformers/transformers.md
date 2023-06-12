@@ -80,3 +80,4 @@
         - NLG: summarization
             - ```[SOS]S1[EOS]S2[EOS]```, random mask token at ```S2[EOS]``` 
             - masking of ```[EOS]``` enables model to terminate generation
+- **White-Box Transformers via Sparse Rate Reduction**

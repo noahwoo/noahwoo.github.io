@@ -4,6 +4,8 @@
 - GPT-1: **Improving Language Understanding by Generative Pre-Training, 2018, OpenAI**
 - GPT-2: **Language Models are Unsupervised Multitask Learners, 2019, OpenAI**
 - GPT-3: **Language Models are Few-Shot Learners, 2020, OpenAI**
+- **Scaling Laws for Neural Language Models, 2020, OpenAI**
+  - In one word: study the scaling laws of loss $L$ to model size $N$ and training token $D$
 - **InstructGPT: Training language models to follow instructions with human feedback, 2022, OpenAI**
     - Reference:
         - **Deep Reinforcement Learning from Human Preferences, 2020, Deepmind/OpenAI**
