@@ -316,3 +316,25 @@
     - 78.2% problem on a representative subset of MATH(8 points gain over Minerva)
     - large reward model can act as human-supervision for small reward model
     - active learning with *convincing wrong-answer* soltuion leads to 2.6x data efficiency
+- **Goat: Fine-tuned LLaMA Outperforms GPT-4 on Arithmetic Tasks, 2023**
+  - In one word: finetuning LLaMA on a synthetical arthimetic dataset gets SOTA result on BIG-bench arithmetic sub-task, mostly due to the consistent digit tokenization(each digit one token) in LLaMA; with the classification of learnable and unlearnable tasks and decomposing the unlearnable task into a series of learnable tasks, problem of multi-digits multiplication and division of positive integers can be solved.
+  - Methods:
+    - Generate ~1M synthetic data for add/substract/multiplication/division arithmetic problems
+      - Instruct only for add/substract with hundreds of template from ChatGPT
+      - Multiplication: 
+        - CoT with distributive law: ```Calculate 234 * 567: 234 * 567 = (200+30+4) * 567 = 200*567 + 30*567 + 4*567 = 113400 + 17010 + 2268 = 132678```
+      - Division:
+        - CoT with quotation substraction: ```What is 234/11? 234 - 11 * 20 = 14 14 - 11 * 1 = 3, therefore 234/11 = 21 R 3```
+    - Finetuing on LLaMA-7B with LoRA on 24GB VRAM GPU
+      - Finetuning decomposed to sub-tasks
+      - Takes about 1.5 hours on A10 GPU for 8 digits addition task
+    - Evaluation & results
+      - Metrics: Accuracy and digit match(doable for LLaMA model)
+      - Results: 
+        - BIG-Bench Arithmetic sub-task: (within 4 digits)
+          - on par with GPT-4 for add/substraction tasks
+          - outperform GPT-4 for multiplication and division tasks
+        - Extra synthetic tasks(Over 5 digits)
+          - outperform GPT-4 in all
+          - GPT-4 perform poorly on mis-match digits number arithmetics(8D + 16D)
+- **A Survey of Deep Learning for Mathematical Reasoning, 2022, UCLA**
