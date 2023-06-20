@@ -81,3 +81,5 @@
             - ```[SOS]S1[EOS]S2[EOS]```, random mask token at ```S2[EOS]``` 
             - masking of ```[EOS]``` enables model to terminate generation
 - **White-Box Transformers via Sparse Rate Reduction**
+- **Improving Transformer Optimization Through Better Initialization, 2020, layer6ai**
+  - In one word: 

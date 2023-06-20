@@ -33,9 +33,20 @@
     - **Scan and Snap: Understanding Training Dynamics and Token Composition in 1-layer Transformer, 2023, MetaAI**
       - In one word: analyze SGD training dynamics, for 1-layer position encoding free transformer with one self-attention plus one decoder layer on next token prediction task
       - Methods
-        - 
+        - Kind of too complex to probe
       - Conclusion
         - self-attention as *discriminative scanning algorithm*
           - **Discriminative Bias**: attends more to tokens distinct for next token, less to common ones
           - **Frequency Bias**: drop attention weight of keys from low to high co-occurrence with query in training set
           - no collapse to one-hot attention due to a phase transition(similar to Induction Head)
+    - **Are Emergent Abilities of Large Language Models a Mirage?, 2023, Stanford**
+      - In one word: emergent abilities appear due to the research's choice of metric rather than due to fundamental changes in model behavior in scale
+      - Method: 
+        - In theory:
+          - Per-token accuracy from scaling law: $p(\text{single token correct}) = \exp \left ( - (N/c)^{\alpha} \right ), \alpha < 0$
+          - $L$-digit arithmetic task accuracy scales non-linearly: $\text{Accuracy}(N) = p(\text{single token correct})^L$
+          - Multi-choice Grade: metric choice discontinuously scales performance
+        - From observations:
+          - Changing the metric from non-linear or discontinuous to linear or continuous reveal smooth, continuous and predictable performance improvment with model scale
+          - For non-linear metrics, increasing the test dataset size reveal smooth, continuous and predictable performance improvment with model scale
+          - For any metrics, increasing target string length predictable affect the model's performance as a function of the length-1 target performance

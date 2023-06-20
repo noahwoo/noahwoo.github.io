@@ -21,3 +21,16 @@ title: Large Language Models on The Way
 - Others
   - [Multilingual & Multimodal](multilingual-multimodal/multilingual-modal.md)
   - [Alignments](alignments/alignment-in-general.md)
+
+# Orgs
+- OpenAI
+- Google Research/Deepmind
+- MetaAI
+- Microsoft
+- Anthropic
+- Allen Institute for AI
+- AI21
+- Huggingface
+- Stanford
+- CMU
+- UC Berkerley

@@ -1,6 +1,10 @@
 
 ## Multilingual & Multimodal
 
+- **Crosslingual Generalization through Multitask Finetuning, 2022, Huggingface**
+  - In one word: apply instruct tuning(multitask prompted finetuning) to multilingual language model, with English instruction and Machine-translated non-English instruction, performance improvement observed on zero-shot generalization and model learnt the high-level task-/language-agnostic capabilites 
+  - Method: 
+    - 
 - **Few-shot Learning with Multilingual Generative Language Models, 2022, Meta AI**
 - **PaLM-E: An Embodied Multimodal Language Model, 2023, Google Research**
 - **MM-REACT: Prompting ChatGPT for Multimodal Reasoning and Action, 2023, Microsoft Azure**

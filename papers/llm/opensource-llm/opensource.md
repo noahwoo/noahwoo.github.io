@@ -121,32 +121,32 @@
             - sort answers by score
         - Tokenizer: BPE encoding from SentencePiece, 1.4T tokens overall, 2 epoches for Wikipedia and Book tokens
         - Architecture: 
-        - Encoder only
-        - Pre-normalization: normalize the input of each sublayer of transformer
-        - SwiGLU activation: 4*2/3*d hidden dim. in FFN(PaLM)
-        - Rotary positional embedding(GPTNeo)
+          - Encoder only
+          - Pre-normalization: normalize the input of each sublayer of transformer
+          - SwiGLU activation: 4*2/3*d hidden dim. in FFN(PaLM)
+          - Rotary positional embedding(GPTNeo)
         - Optimizer: 
-        - AdamW with $\beta_1$=0.9, $\beta_2$=0.95
-        - consine learning rate schedule
-        - weight decay 0.1
-        - gradient clip 1.0
-        - 2000 warmup steps, LR varies with batch size
+          - AdamW with $\beta_1$=0.9, $\beta_2$=0.95
+          - consine learning rate schedule
+          - weight decay 0.1
+          - gradient clip 1.0
+          - 2000 warmup steps, LR varies with batch size
         - Efficient implementation
-        - not storing attention weights
-        - not computing masked key/query scores
-        - same expensive activations such as output of linear layers, by manually implement the backward function
-        - 380 tokens/sec/GPU on 2048 A100 with 80GB RAM, 1.4T token requires 21 days
+          - not storing attention weights
+          - not computing masked key/query scores
+          - same expensive activations such as output of linear layers, by manually implement the backward function
+          - 380 tokens/sec/GPU on 2048 A100 with 80GB RAM, 1.4T token requires 21 days
         - Evaluation tasks: 
-        - Common sense reasoning: BoolQ/PIQA/SIQA/HellaSwag/WinnoGrande/ARC easy and challenge/OpenBookQA
-        - Closed-book QA: Natural Question/TriviaQA
-        - Math. reasoning: MATH/GSM8K
-        - Code generation: HumanEval/MBPP
-        - MMLU: perform low, limited amount of books used for pre-training
+          - Common sense reasoning: BoolQ/PIQA/SIQA/HellaSwag/WinnoGrande/ARC easy and challenge/OpenBookQA
+          - Closed-book QA: Natural Question/TriviaQA
+          - Math. reasoning: MATH/GSM8K
+          - Code generation: HumanEval/MBPP
+          - MMLU: perform low, limited amount of books used for pre-training
         - Bias, Toxicity and Misinformation
-        - RealToxicityPrompts: toxicity increase with increase of model size
-        - CrowS-Pairs: bias evaluation
-        - WinoGender: gender bias
-        - TruthfulQA: truthful and informative
+          - RealToxicityPrompts: toxicity increase with increase of model size
+          - CrowS-Pairs: bias evaluation
+          - WinoGender: gender bias
+          - TruthfulQA: truthful and informative
 - **GLM: General Language Model Pretraining with Autoregressive Blank Infilling, 2022, Tsinghua**
     - In one word: a general language model based on autoregressive blank infilling objective for the NLU, generation and conditional generation tasks in one model
     - Methods: 

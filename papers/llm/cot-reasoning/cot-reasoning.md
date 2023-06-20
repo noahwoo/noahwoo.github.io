@@ -337,4 +337,5 @@
         - Extra synthetic tasks(Over 5 digits)
           - outperform GPT-4 in all
           - GPT-4 perform poorly on mis-match digits number arithmetics(8D + 16D)
+      - Goat perform poorly for OOD problems
 - **A Survey of Deep Learning for Mathematical Reasoning, 2022, UCLA**
