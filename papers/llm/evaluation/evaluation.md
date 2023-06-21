@@ -1,0 +1,40 @@
+- **AlpacaFarm: A Simulation Framework for Methods that Learn from Human Feedback, 2023, Stanford**
+  - In one word: simulate human feedback with prompted LLMs to reduce the cost of LPF(learning from pairwise feedback), show the consistency with human feedback on performance ranking of 11 LPF algorithms
+  - Method:
+    - Instruction following dataset: 52K alpaca dataset
+      - SFT: 10K
+      - Pairwise preference(PREF): 10K
+      - Unlabeled split: 20K used in algorithms such as PPO
+      - Validation split: 2K for development and tuning
+    - 3 key components for instruction following model efficiency
+      - low-cost pair-wise feedback generator
+        - Prompted GPT-4 model: 
+          - guideline for appropriate response
+          - in-context examples
+          - batch generation
+        - 13 simulated annotators for human variability
+          - inter: different prompts
+          - intra: flipping preference with 25% chance
+      - automatic evaluation for methods development
+        - win-rate from simulated evaluator
+        - davinci-003 as reference model
+        - evaluation dataset:
+          - 805 instructions from OASST, HHA and Vicuna evaluation, etc.
+      - reference implementation for comparison
+    - 6 Algorithms in AlpacaFarm
+      - Binary FeedME
+      - Binary reward conditioning
+      - Best-of-n sampling
+      - Expert Iteration
+      - PPO
+      - Quark
+    - Conclusions
+      - Simulated annotators rank Algorithms highly correlated to human feedback: 0.98 spearman(too high)
+      - Simulated annotators match human agreement: 65% aggrement rate with human majority vote
+      - Simulated annotator replicate overoptimzation: indication of too much optimization on proxy criteria from reward model
+      - Benchmarks on algorithm
+        - SFT highly effective
+        - PPO top the leaderboard
+        - Best-of-n simple and effective
+- **Can Large Language Models Be an Alternative to Human Evaluation?, 2023, NTU**
+- **KoLA: Carefully Benchmarking World Knowledge of Large Language Models, 2023, Tsinghua**
