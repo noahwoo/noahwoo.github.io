@@ -339,4 +339,7 @@
           - GPT-4 perform poorly on mis-match digits number arithmetics(8D + 16D)
       - Goat perform poorly for OOD problems
 - **A Survey of Deep Learning for Mathematical Reasoning, 2022, UCLA**
+
+# LLMs and human cognitive science
 - **Reflexion: Language Agents with Verbal Reinforcement Learning, 2023**
+- **Theory of Mind May Have Spontaneously Emerged in Large Language Models, Stanford, 2023**

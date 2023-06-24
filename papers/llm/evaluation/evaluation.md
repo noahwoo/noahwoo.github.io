@@ -37,4 +37,30 @@
         - PPO top the leaderboard
         - Best-of-n simple and effective
 - **Can Large Language Models Be an Alternative to Human Evaluation?, 2023, NTU**
+  - In one word: explore the ability of LLMs as evaluator in place of human, with results from open ended story generation and adiversial attacks, score text rated by LLMs is consistent with human ones
+  - Methods: 
+    - prompt LLMs to perform the evaluation task
+      - task instruction
+      - the sample to be evaluated
+      - the evalation question
+    - Human use the same format of prompt as LLM
+    - For open-ended story generation
+      - WritingPrompts dataset for human written story
+      - Finetune GPT-2 medium model with WritingPrompts dataset for LLM story generator
+      - 4 evaluation angles
+        - Grammaticality: ```How **grammatically correct** is the text of the story fragment?```
+        - Cohesiveness: ```How well do **the sentences** in the story fragment **fit together**?```
+        - Likability: ```How **enjoyable** do you find the story fragment?```
+        - Relevance: ```Now read the PROMPT based on which the story fragment was written. **Prompt**: [PROMPT]. How **relevant** is the **story fragment** to the **prompt**?```
+      - 4 LLMs tested as evaluators: *T0, text-curie-001, text-davinci-003, ChatGPT*
+      - Results:
+        - Expert human evaluators prefer humanwritten stories
+        - *T0* and *text-curie-001* do not show clear preference toward human-written stories
+        - *text-davinci-003* shows clear preference toward human-written stories just like English teachers
+        - *ChatGPT* rates like human experts and can explain its own decision well
+        - Human experts mostly agree with the ratings and explanations of *ChatGPT*
+        - *text-davinci-003* tends to give higher ratings and ChatGPT is the opposite
+        - Weak to strong positive correlations between teachers’ ratings and *text-davinci-003*’s ratings
+        - Evaluation and comparison are meaningful if using the same instruction
+        - Changing the instructions and temperatures slightly change the absolute value of rating but does not chage the preference
 - **KoLA: Carefully Benchmarking World Knowledge of Large Language Models, 2023, Tsinghua**
