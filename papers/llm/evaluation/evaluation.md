@@ -1,3 +1,12 @@
+# Leaderboards
+
+- [C-Eval](https://cevalbenchmark.com/static/leaderboard.html)
+- [AlpacaEval](https://tatsu-lab.github.io/alpaca_eval/)
+- [MMLU](https://paperswithcode.com/sota/multi-task-language-understanding-on-mmlu)
+- [SuperGLUE](https://super.gluebenchmark.com/leaderboard)
+- [Big-bench Lite](https://github.com/google/BIG-bench#big-bench-lite-leaderboard)
+
+# Evaluation approaches and research
 - **AlpacaFarm: A Simulation Framework for Methods that Learn from Human Feedback, 2023, Stanford**
   - In one word: simulate human feedback with prompted LLMs to reduce the cost of LPF(learning from pairwise feedback), show the consistency with human feedback on performance ranking of 11 LPF algorithms
   - Method:
