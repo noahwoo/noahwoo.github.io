@@ -343,3 +343,41 @@
 # LLMs and human cognitive science
 - **Reflexion: Language Agents with Verbal Reinforcement Learning, 2023**
 - **Theory of Mind May Have Spontaneously Emerged in Large Language Models, Stanford, 2023**
+
+# LLMs for Code
+- **Evaluating Large Language Models Trained on Code, 2021, OpenAI**
+  - In one word: Codex(Codex-S) finetuned on public avaliable code on Github, focus on code synthetic from docstrings, solved 70% HumanEval problem with 100 samples/problem
+  - Method:
+    - Evaluation Method
+      - pass@k metics: one of the k-samples passed Unit Tests
+      - HumanEval: 164 hand-written programming problems
+        - function signature
+        - docstring
+        - body
+        - unit tests: 7.7/problem
+      - Sandbox environment for code executing
+    - Finetuning from GPT-3 for *Codex*
+      - No performance improvements observed but fast convergence
+      - 54 Millon Github projects, filtered to 159GB 
+      - train for 100B tokens
+      - GPT-3 text tokenizer, with additional whitespaces of different length
+      - Sampling stop at ```\nclass```, ```\ndef```, ```\n#```, ```\nif``` or ```\nprint```
+    - Supervised Finetuning for *Codex-S*
+      - *training* problems: correctly implemented standalone function
+        - competitive programming website: 10,000
+        - github repository with CI deployed(traivs/tox): 40,000
+        - filter by Codex-12B: generate 100 samples, filter out the problem that all samples failed
+      - negative log-likelihood of the reference solution as loss function
+      - train until loss plateaus
+    - Result:
+      - *Codex*
+        - higher temperatures optimal for large $k$
+        - sample with highest mean token log probability performs better
+        - *Codex* outperform *GPT-J* and *GPT-Neo* with lower model parameters
+      - *Codex-S*
+        - *Codex-S* outperforms *Codex* by an average of 6.5 percentage points on pass@1
+    - Docstring generation works poorly due to quality of docstring in data
+- **WizardCoder: Empowering Code Large Language Models with Evol-Instruct, 2023, Microsoft**
+  - In one word: empower Code LLMs with complex instruction finetuning, outperform all opensource Code LLMs on HumanEval, HumanEval+, MBPP and DS-1000 dataset
+- **Textbooks Are All You Need, 2023, Microsoft**
+  - In one word:
