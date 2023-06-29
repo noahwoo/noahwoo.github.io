@@ -83,3 +83,19 @@
 - **White-Box Transformers via Sparse Rate Reduction**
 - **Improving Transformer Optimization Through Better Initialization, 2020, layer6ai**
   - In one word: 
+- **RoFormer: Enhanced Transformer with Rotary Position Embedding, 2021, Zhuiyi**
+  - In one word: encode position by a rotation for every 2-dim of the input vector, attention calculation extends to the complex number dot-product, and take the Real part
+  - Method:
+    - Position Encoding by rotating each pair of dimension: $f(x, m) = [(x_0 + i x_1) e^{i m \theta_1}, (x_2 + i x_3) e^{i m \theta_2}, \cdots, (x_{d-2} + i x_{d-1}) e^{i m \theta_{d/2-1}}]$
+    - Attention with position encoding: $Re<f(q, m), f(k, n)> = a(m-n)$
+    - Long-term decay(not true):
+      - $a(m-n)$ is bounded by $(\max |h_{j+1} - h_j|) \sum_{j=0}^{d/2-1} |S_{j+1}|$
+      - where $h_j = q_{[2j, 2j+1]} k_{[2j, 2j+1]}^*$, $S_j = \sum_{t=0}^j e^{i (m-n) \theta_t }$
+- **Extending Context Window of Large Language Models via Positional Interpolation, 2023, MetaAI**
+  - In one word: extend the context window size of pretrained RoPE-based LLM by position interpolation the short window, by linearly down-scale the input position indices to match the original context window size
+  - Method: 
+    - Scaling down the input position $m$ to pretrained context window: $\hat{f}(x,m') = f(x, m' \frac{L}{L'}$
+    - where $L' > L$ is the new context window size
+    - $\hat{a}(m'-n') =: Re<\hat{f}(q, m'), \hat{f}(k, n')>$
+    - Denote $s= (m'-n') \frac{L}{L'}$, then $s \in [s_1, s_2]$, and $s_2 - s_1 = 1$
+    - Bound: $|\hat{a}(s) - \hat{a}_{linear}(s; [s_1, s_2])| \leq \frac{d (\max_j |h_j|)}{32 \log 10000}$
