@@ -88,7 +88,8 @@
   - Method:
     - Position Encoding by rotating each pair of dimension: $f(x, m) = [(x_0 + i x_1) e^{i m \theta_1}, (x_2 + i x_3) e^{i m \theta_2}, \cdots, (x_{d-2} + i x_{d-1}) e^{i m \theta_{d/2-1}}]$
     - Attention with position encoding: $Re<f(q, m), f(k, n)> = a(m-n)$
-    - Long-term decay(not true):
+    - Applied for Q, K in each layer
+    - Long-term decay(but not tight):
       - $a(m-n)$ is bounded by $(\max |h_{j+1} - h_j|) \sum_{j=0}^{d/2-1} |S_{j+1}|$
       - where $h_j = q_{[2j, 2j+1]} k_{[2j, 2j+1]}^*$, $S_j = \sum_{t=0}^j e^{i (m-n) \theta_t }$
 - **Extending Context Window of Large Language Models via Positional Interpolation, 2023, MetaAI**
@@ -99,3 +100,14 @@
     - $\hat{a}(m'-n') =: Re<\hat{f}(q, m'), \hat{f}(k, n')>$
     - Denote $s= (m'-n') \frac{L}{L'}$, then $s \in [s_1, s_2]$, and $s_2 - s_1 = 1$
     - Bound: $|\hat{a}(s) - \hat{a}_{linear}(s; [s_1, s_2])| \leq \frac{d (\max_j |h_j|)}{32 \log 10000}$
+- **Train Short, Test Long: Attention with Linear Biases Enables Input Length Extrapolation, 2021, UW**
+  - In one word: verify the expolation of position encoding using perplexity on sequence longer than training, proposed a simple linear bias to the attention matrix, which shows good expolation performance
+  - Method: 
+    - Change attention matrix from $\text{softmax}(q_i K^T)$ to $\text{softmax}(q_i K^T + m \cdot [-(i-1), \cdots, -2, -1, 0])$
+    - Slope $m=2^{-\frac{8i}{n}}$ for each $i$ of $n$ head
+    - Implement by modify the self-attention mask matrix $T \times T$, change to $n \times T \times T$
+  - Experimental conclusions
+    - Sinusoidal extrapolation declines after 50 tokens for L=1024
+    - Rotary extrapolates to 100 for L=1024
+    - T5-bias extrapolates to 800 for L=1024
+    - ALiBi exptrapolates to any length sequence!
