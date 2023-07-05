@@ -5,6 +5,8 @@
 - [MMLU](https://paperswithcode.com/sota/multi-task-language-understanding-on-mmlu)
 - [SuperGLUE](https://super.gluebenchmark.com/leaderboard)
 - [Big-bench Lite](https://github.com/google/BIG-bench#big-bench-lite-leaderboard)
+- [OpenLLM](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard)
+- [Chatbot Arena](https://chat.lmsys.org/?arena)
 
 # Evaluation approaches and research
 - **AlpacaFarm: A Simulation Framework for Methods that Learn from Human Feedback, 2023, Stanford**
@@ -73,3 +75,5 @@
         - Evaluation and comparison are meaningful if using the same instruction
         - Changing the instructions and temperatures slightly change the absolute value of rating but does not chage the preference
 - **KoLA: Carefully Benchmarking World Knowledge of Large Language Models, 2023, Tsinghua**
+- **AGIEval: A Human-Centric Benchmark for Evaluating Foundation Models, 2023, Microsoft**
+- **Constitutional AI: Harmlessness from AI Feedback, 2022, Anthropic**

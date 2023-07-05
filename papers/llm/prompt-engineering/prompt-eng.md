@@ -42,7 +42,7 @@
     - **[LoRA for Stable Diffusion Finetuning](https://huggingface.co/blog/lora)**
         - **[Github](https://github.com/cloneofsimo/lora)**
         - **DreamBooth: Fine Tuning Text-to-Image Diffusion Models for Subject-Driven Generation, 2022, Google**
-        - In one word: personalization of text-to-image diffusion models by finetuning
+          - In one word: personalization of text-to-image diffusion models by finetuning
         - **An Image is Worth One Word: Personalizing Text-to-Image Generation using Textual Inversion, 2022, NVIDIA**
         - **Pivotal Tuning for Latent-based Editing of Real Images, 2021**
         - **[The Illustrated Stable Diffusion](https://jalammar.github.io/illustrated-stable-diffusion/), 2022**
@@ -51,3 +51,5 @@
     - **Large Language Models Are Human-Level Prompt Engineers, 2023**
 - Applications: 
     - **Prompt tuning GPT-2 language model for parameter-efficient domain adaptation of ASR systems, 2022, Amazon** (OK)
+- Agents:
+  - **Generative Agents: Interactive Simulacra of Human Behavior, 2023, Stanford**

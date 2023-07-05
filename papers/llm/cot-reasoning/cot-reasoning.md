@@ -380,4 +380,36 @@
 - **WizardCoder: Empowering Code Large Language Models with Evol-Instruct, 2023, Microsoft**
   - In one word: empower Code LLMs with complex instruction finetuning, outperform all opensource Code LLMs on HumanEval, HumanEval+, MBPP and DS-1000 dataset
 - **Textbooks Are All You Need, 2023, Microsoft**
-  - In one word:
+  - In one word: introduce 1.3B Transformer decoder model trained from text-book quality data selected from web(6B), and synthetically generated textbooks and exercises with GPT-3.5(1B), get 50% pass@1 for HumanEval, 55.5% on MBPP
+- **Competition-Level Code Generation with AlphaCode, 2022, Deepmind**
+- **CodeGen: An Open Large Language Model for Code with Multi-Turn Program Synthesis, 2023, Salesforce**
+- **LeanDojo: Theorem Proving with Retrieval-Augmented Language Models, 2023, MIT**
+
+
+# LLMs based text2sql
+
+- **ChatDB: Augmenting LLMs with Databases as Their Symbolic Memory, 2023, Tsinghua**
+  - In one word: Augment LLMs with a symbolic framework(LLM and a set of SQL database), to improve the complex multi-hop reasoning
+  - Method:
+    - Focus on DB related queries, more rely on SQL generation ability of ChatGPT
+    - not-so-fair comparison with ChatGPT on the Fruit Shop Demo
+    - Three LLMs agents
+      - LLM(getSteps): In-context learning by prompting ChatGPT with 50 examples
+        - Each example composite instruction(CoT) and SQL(CoM)
+      - LLM(updateOperation): update memOp based on sqlResults when required
+      - LLM(summary): summarize the final answer from all the sqlResults for user query
+- **SQL-PaLM: Improved Large Language Model Adaptation for Text-to-SQL, 2023, Google**
+  - In one word: with few-shot in-context learning and fine-tuning settings, the LLM based text-to-SQL model SQL-PaLM achieves SOTA results on Spider Dev split, 77.4% test-suite accuracy, 4% margin to the runner up
+  - Method:
+    - Few-shot prompting:
+      - 4-shot prompting
+      - Prompting format: ```{system} [(table-schema, columns, primary-keys, foreign-keys), Question, SQL]+ Question: {question} SQL: ```
+      - table schema in concise or verbose format, concise works better
+    - Finetuning:
+      - Finetuning with Spider dataset
+        - 7000 training samples, across 166 database
+        - 1034 evaluation samples('Dev split'), across 20 database
+  - Evaluation:
+    - Execution accuracy(EX): False positive problem(correct result but wrong SQL)
+    - test-suite accuracy(TS): EX on test suite level, count only all examples passed
+

@@ -2,9 +2,8 @@
 # Transformers
 
 - **Thinking Like Transformers, 2021**
-- **Training compute-optimal large language models, 2022, Deepmind**
 - **Formal Algorithms for Transformer, 2022, Deepmind**
-    - In one word: a self-contained, mathematically precise overview of transformer architectures in pesudo-code
+    - **In one word**: a self-contained, mathematically precise overview of transformer architectures in pesudo-code
     - Notes: 
         - pesudo-code for each modules of Transformer: 
         - Token embedding
@@ -40,9 +39,9 @@
 - **[A Mathematical Framework for Transformer Circuits](https://transformer-circuits.pub/2021/framework/index.html)**
 - **[In-context Learning and Induction Heads](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html)**
 - **Efficient Transformers: A Survey, 2020, Google**
-    - In one word: characterizes a large and thoughtful selection of recent efficiency-favored "X-former" models, providing an organized and comprehensive overview of existing work and models across multiple domains
+    - **In one word**: characterizes a large and thoughtful selection of recent efficiency-favored "X-former" models, providing an organized and comprehensive overview of existing work and models across multiple domains
 - **Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context, 2019, Google**
-    - In one word: a transformer architecture that enables learning dependency beyond a fixed length without disrupting temporal coherence
+    - **In one word**: a transformer architecture that enables learning dependency beyond a fixed length without disrupting temporal coherence
     - Method in details:
         - a segment level recurrence mechanism 
         - hidden state sequence of previous segment fixed and cached to be reused as extra (k,v) context in next segment
@@ -63,7 +62,7 @@
         - One Billon Word(short term dependency): new single-model SOTA of ppl 21.8 by large margin
         - Word level Penn Treebank: new SOTA without two-step finetuing
 - **Unified Language Model Pre-training for Natural Language Understanding and Generation, 2019, MSRA**
-    - In one word: a parameter-shared transformer framework for unified training of NLG and NLU tasks with attention masking
+    - **In one word**: a parameter-shared transformer framework for unified training of NLG and NLU tasks with attention masking
     - Method in details: 
         - Transformer Decoder: self-attention support bi-direction, uni-direction(causal) masking
         - 4 pre-training objectives
@@ -82,9 +81,8 @@
             - masking of ```[EOS]``` enables model to terminate generation
 - **White-Box Transformers via Sparse Rate Reduction**
 - **Improving Transformer Optimization Through Better Initialization, 2020, layer6ai**
-  - In one word: 
 - **RoFormer: Enhanced Transformer with Rotary Position Embedding, 2021, Zhuiyi**
-  - In one word: encode position by a rotation for every 2-dim of the input vector, attention calculation extends to the complex number dot-product, and take the Real part
+  - **In one word**: encode position by a rotation for every 2-dim of the input vector, attention calculation extends to the complex number dot-product, and take the Real part
   - Method:
     - Position Encoding by rotating each pair of dimension: $f(x, m) = [(x_0 + i x_1) e^{i m \theta_1}, (x_2 + i x_3) e^{i m \theta_2}, \cdots, (x_{d-2} + i x_{d-1}) e^{i m \theta_{d/2-1}}]$
     - Attention with position encoding: $Re<f(q, m), f(k, n)> = a(m-n)$
@@ -93,15 +91,15 @@
       - $a(m-n)$ is bounded by $(\max |h_{j+1} - h_j|) \sum_{j=0}^{d/2-1} |S_{j+1}|$
       - where $h_j = q_{[2j, 2j+1]} k_{[2j, 2j+1]}^*$, $S_j = \sum_{t=0}^j e^{i (m-n) \theta_t }$
 - **Extending Context Window of Large Language Models via Positional Interpolation, 2023, MetaAI**
-  - In one word: extend the context window size of pretrained RoPE-based LLM by position interpolation the short window, by linearly down-scale the input position indices to match the original context window size
+  - **In one word**: extend the context window size of pretrained RoPE-based LLM by position interpolation the short window, by linearly down-scale the input position indices to match the original context window size
   - Method: 
-    - Scaling down the input position $m$ to pretrained context window: $\hat{f}(x,m') = f(x, m' \frac{L}{L'}$
+    - Scaling down the input position $m$ to pretrained context window: $\hat{f}(x,m') = f(x, m' \frac{L}{L'})$
     - where $L' > L$ is the new context window size
     - $\hat{a}(m'-n') =: Re<\hat{f}(q, m'), \hat{f}(k, n')>$
     - Denote $s= (m'-n') \frac{L}{L'}$, then $s \in [s_1, s_2]$, and $s_2 - s_1 = 1$
     - Bound: $|\hat{a}(s) - \hat{a}_{linear}(s; [s_1, s_2])| \leq \frac{d (\max_j |h_j|)}{32 \log 10000}$
 - **Train Short, Test Long: Attention with Linear Biases Enables Input Length Extrapolation, 2021, UW**
-  - In one word: verify the expolation of position encoding using perplexity on sequence longer than training, proposed a simple linear bias to the attention matrix, which shows good expolation performance
+  - **In one word**: verify the expolation of position encoding using perplexity on sequence longer than training, proposed a simple linear bias to the attention matrix, which shows good expolation performance
   - Method: 
     - Change attention matrix from $\text{softmax}(q_i K^T)$ to $\text{softmax}(q_i K^T + m \cdot [-(i-1), \cdots, -2, -1, 0])$
     - Slope $m=2^{-\frac{8i}{n}}$ for each $i$ of $n$ head
@@ -111,3 +109,35 @@
     - Rotary extrapolates to 100 for L=1024
     - T5-bias extrapolates to 800 for L=1024
     - ALiBi exptrapolates to any length sequence!
+- **Reformer, the efficient Transformer, 2020, UCBerkeley**
+  - In one word: speedup the computation of attention by hashing similar Q-K vectors into a bucket, attention calculation happens in current bucket and the previous one
+- **[vLLM: Easy, Fast, and Cheap LLM Serving with PagedAttention](https://vllm.ai/)**
+  - **In one word**: paging the K-V tensor caches with memory blocks, improve the memory utilization and therefore more sequence can be batched for high GPU utilization, which leads to high throughput
+  - Method:
+    - Analog to pagination in OS
+      - K-V tensor for token <-> byte
+      - Blocks of K-V tensor <-> page
+      - sequence             <-> process
+    - Memory sharing of Block with same sequence chunk
+      - Copy-on-write
+  - Result:
+    - 24x throughput vs Huggingface
+    - 3.5x throughput vs TGI
+- **Fast Transformer Decoding: One Write-Head is All You Need, 2019, Google**
+  - **In one word**: reduce the memory footprint in attention calculation by sharing the K-V matrix of different heads
+- **FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness, 2022, NIPS**
+  - **In one word**: making attention algorithm *IO-aware*, accounting for reads and writes between levels of GPU memory
+  - Method:
+    - tiling the Q, K-V matrix into blocks
+    - loop $j$ through K-V blocks: 
+      - load $K_j$, $V_j$ tensor blocks from HBM into SRAM
+      - loop $i$ through Q blocks:
+        - load $Q_i$, $O_i$ tensor blocks from HBM into SRAM
+        - calculate $S_{i,j}=\text{softmax}(Q_iK_j^T)$
+        - normalize $S_{i,j}$ to $P_{i,j}$ as standard softmax in numerically stable way
+        - update softmax normalization statistics: $m_{i,j}(x)$ for max, $l_{i,j}(x)$ for summation
+        - update scaled $P_{i,j} V_j$ back to $O_{i,j}$ in HBM, in light of algebraic aggregation
+    - Easy to extend to block-sparse attention
+  - Result:
+    - 3x speedup on GPT-2
+    - 2.4x speedup on long-range sequence arena

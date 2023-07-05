@@ -321,3 +321,5 @@
         - Fewshot / AutoCot
         - ART w/o tool use: use LM to generate tool result instead(work poorly for sure)
     - ART underperform GPT-3 best(with human supervision for task decomposision and tool usage)
+- **[Compression for AGI - Jack Rae](https://www.youtube.com/watch?v=dO4TPJkeaaU), 2023, OpenAI**
+  - In one word: 
