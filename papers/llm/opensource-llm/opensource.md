@@ -158,3 +158,30 @@
         - Sentence Level: whole sentence as span, sample 15% tokens 
         - Finetune with classification tasks
         - Sentiment classification: `{SENTENCE}. It is really [MASK].`
+
+- **GLM-130B: AN OPEN BILINGUAL PRE-TRAINED MODEL, 2022, Tsinghua**
+   - In one word: introduce the training process of GLM-130B, include design choices and training strategies for both efficiency and stability, resulting GLM-130B model can be inferred on single A100 GPU or 4 RTX 3090 consumer GPU card
+   - Methods:
+     - Architecture & Training objective: 
+        - autoregressive blank infilling
+          - short blank in sentence
+          - long blank at the end of sentence
+        - bidirectional attention for unmask tokens
+     - Layer Norm: Post-Norm initialized with DeepNorm (further check in **DeepNet: Scaling Transformers to 1,000 Layers**)
+     - PosEmbedding: RoPE
+     - Embedding Layer Gradient Shrinking (further check in **CogView: Mastering Text-to-Image Generation via Transformers**)
+   - Evaluations:
+     - LAMBADA: test last word lanauge model capability, win over GPT-3/OPT/BLOOM
+     - MMLU: 57 multi-choice question answer tasks, win over GPT-3/OPT/BLOOM
+     - BigBench-Lite: 24-task sub-collection
+       - win in zero-shot settings
+       - loss to GPT-2/PaLM as examples increasing in few-shot settings
+         - bidirectional nature benefit zero-shot performance
+         - MIP training in zero-shot way, deficit the capability of few-shot learning
+     - CLUE/FewCLUE: win over Ernie Titan 3.0
+     - CEval: no-probe
+
+- **DeepNet: Scaling Transformers to 1,000 Layers, 2022, Microsoft**
+  - In one word: introduce a new normalization function to modify the residual connection in transformer, accompanying with theoretically derived initialization, benefit from both the good performance of Post-LN and stable training of Pre-LN
+  - Method:
+- **CogView: Mastering Text-to-Image Generation via Transformers, 2021, Tsinghua**
