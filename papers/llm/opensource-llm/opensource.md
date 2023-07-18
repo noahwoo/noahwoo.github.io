@@ -189,10 +189,10 @@
         - $k_l = N-l+1, \forall l=1,\cdots,N$, $d'$ for Xaiver initialization
       - Model udpate at the beginning(instead of gradient scale) account for the instability of Post-LN:
         - large model update renders model trapped in a bad local optima
-        - $\rightarrow$ in turn increases the magnitude of input to each LN
-        - $\rightarrow$ gradient from each LN become small
-        - $\rightarrow$ results in gradient vanishing
-        - $\rightarrow$ model trapped in local optima
+          - $\rightarrow$ in turn increases the magnitude of input to each LN
+          - $\rightarrow$ gradient from each LN become small
+          - $\rightarrow$ results in gradient vanishing
+          - $\rightarrow$ model trapped in local optima
     - DeepNet: 
       - $x_{l+1} = LN(\alpha x_l + G_l(x_l, \theta_l))$, $\alpha=(2M)^{1/4}$
       - init. scale the weights of $\{W_v, W_o, W_1, W_2\}_l$ by $(8M)^{-1/4}$
@@ -202,5 +202,22 @@
     - improve the stability of Transformer up to 1000 layers
 - **CogView: Mastering Text-to-Image Generation via Transformers, 2021, Tsinghua**
 - **On Layer Normalization in the Transformer Architecture, 2020, Microsoft**
-  - In one word: study theoretically why the learning rate warm-up stage is essential, show that the location of layer norm matters
-  - Method:
+  - In one word: theoretically show that the learning rate warm-up stage in Transformer is essential only for Post-LN, Pre-LN does not show gradient explodes in higher layers
+  - Method: 
+    - Warm-up deep-dive
+      - vary $T_{warmup}$ and $LR_{max}$: two key arguments for warm-up
+      - verify Adam and SGD
+      - check the Loss and BLEU with the epoch of trainings on IWSLT14(De-En) dataset
+    - Theoretically analysis of gradient norm in last layer and LN layer
+      - gradient norm of FFN in last layer:
+        - Post-LN: $\| \frac{\partial \hat{L}}{\partial W^{2,L}} \|_F \leq O(d \sqrt{\ln d})$
+        - Pre-LN: $\| \frac{\partial \hat{L}}{\partial W^{2,L}} \|_F \leq O(d \sqrt{\frac{\ln d}{L}})$
+      - norm bound of last layer before LN after initialization
+        - Post-LN: $E(\| x_{l,i}^{post,5}\|_2^2)=3d/2$
+        - Pre-LN: $(1+l/2)d \leq E(\| x_{l,i}^{pre} \|_2^2) \leq (1+3l/2)d$
+      - scale of gradient using LN inversely proportional to scale of the hidden states
+        - $\| \frac{\partial LN(x)}{x} \|_2 = O(\frac{\sqrt{d}}{\|x\|_2})$
+  - Conclusion:
+    - layer normalization plays a crucial role in controlling gradient scales(for higher layers)
+    - Post-LN: gradient norm is large for parameters near the output, and decay as the layer index $l$ decrease
+    - Pre-LN: gradient norm stay the same for any layer $l$
