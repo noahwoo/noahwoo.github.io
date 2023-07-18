@@ -184,4 +184,23 @@
 - **DeepNet: Scaling Transformers to 1,000 Layers, 2022, Microsoft**
   - In one word: introduce a new normalization function to modify the residual connection in transformer, accompanying with theoretically derived initialization, benefit from both the good performance of Post-LN and stable training of Pre-LN
   - Method:
+    - Instability of deep Transformer: 
+      - Initialization: Xaiver + Layer-wise down-scaling $w^l_o \sim N(0, \frac{1}{k_l^2 d'})$
+        - $k_l = N-l+1, \forall l=1,\cdots,N$, $d'$ for Xaiver initialization
+      - Model udpate at the beginning(instead of gradient scale) account for the instability of Post-LN:
+        - large model update renders model trapped in a bad local optima
+        - $\rightarrow$ in turn increases the magnitude of input to each LN
+        - $\rightarrow$ gradient from each LN become small
+        - $\rightarrow$ results in gradient vanishing
+        - $\rightarrow$ model trapped in local optima
+    - DeepNet: 
+      - $x_{l+1} = LN(\alpha x_l + G_l(x_l, \theta_l))$, $\alpha=(2M)^{1/4}$
+      - init. scale the weights of $\{W_v, W_o, W_1, W_2\}_l$ by $(8M)^{-1/4}$
+    - Model update bounded by(Decoder):
+      - $\| \Delta F \| \leq \sum_{i=1}^{2N} \frac{\sqrt{v_i^2 + w_i^2}}{\alpha} \| \theta_i^* - \theta_i \|$
+  - Conclusion:
+    - improve the stability of Transformer up to 1000 layers
 - **CogView: Mastering Text-to-Image Generation via Transformers, 2021, Tsinghua**
+- **On Layer Normalization in the Transformer Architecture, 2020, Microsoft**
+  - In one word: study theoretically why the learning rate warm-up stage is essential, show that the location of layer norm matters
+  - Method:
