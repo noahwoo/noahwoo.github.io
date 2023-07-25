@@ -141,3 +141,42 @@
   - Result:
     - 3x speedup on GPT-2
     - 2.4x speedup on long-range sequence arena
+ 
+- **[Scaffolded LLMs as natural language computers](https://www.beren.io/2023-04-11-Scaffolded-LLMs-natural-language-computers/)**
+  - Hardware
+    - CPU <-> LLMs
+    - Memory <-> Context/Prompt
+    - Harddisk <-> Vector Database
+    - Memory controller <-> Vector Search
+    - Device driver <-> Plugins
+    - Program <-> Protocols to chain LLMs
+    - FLOPs <-> NLOPs (one NLOP = 100 token generation)
+  - Software
+    - assembly languages
+      - mov <-> CoT
+      - Selection-inference <-> leq
+      - Reflection <-> goto
+      - more ...
+    - compiler demo <-> langchain
+    - algorithm & data structure
+      - algorithm demo <-> recursive text summarization
+      - data structure demo <-> memory stream
+  - execution model
+    - instruction/data convention <-> context/prompt
+      - context <-> system prompt, protected memory regions of RAM
+      - prompt <-> op-code 
+      - e.g.: please summarize these documents: [list of documents].
+        - a single NLOP
+        - summary command <-> op-code
+        - list of documents <-> context
+  - Memory hierarchy
+    - in-chip cache/memory/harddisk <-> context/vector-database
+    - ideas for more memory hierarchy levels
+      - dense context vs. sparse/locally attented context
+      - ranking long-term memory and feeding the relevant one into context for a NLOP
+  - Foundation models as cognitive hardware
+    - delicate and expensive to design 
+    - produce in slow iteration cycles
+    - highly general
+    - poor portability without hardware-software decoupling
+    - NL software iterate more faster than foundation models
