@@ -1,6 +1,14 @@
 ---
-title: Weekly updates on token training of human intelligence
+title: Weekly updates on large models
 ---
+# Week-of-year:（2024-08-18 ~ 2024-08-24）
+- VLP视觉大模型与视觉指令精挑
+  
+# Week-of-year: (2024-08-11 ~ 2024-08-17)
+- LLM模型裁剪与知识萃取
+
+从大的LLM更高效的得到小的LLM，目标分为深度裁剪（Layers）、宽度裁剪（attention heads，MLP中间层维度，embedding维度等）以及深度宽度同时裁剪三种情况，实现方案主要分依赖梯度计算和无梯度计算两类。Nvidia最近的工作[S. Muralidharan](https://arxiv.org/abs/2407.14679)，给出一个无梯度计算情况下深度和宽度同时裁剪的方案，该方案裁剪过程具有无梯度带来的低计算成本的优势，宽度上根据MHA、MLP及LN的Activation大小确定对应维度的重要性，深度上定义perplexity（移除一层计算perplexity的diff）和Block Importance（计算层输入/输出embedding的相似性）来估算层的重要性。把维度和层按照重要性排序后裁剪掉重要性低的维度，对得到的模型通过CPT来以原始模型的logits为目标进行萃取训练。训练后的模型继续在宽度和深度上做重要性评估和裁剪，再做CPT萃取训练，持续循环多次得到最终的裁剪模型。Apple的On-device端侧小模型（2.7B）的训练[AFM](https://machinelearning.apple.com/research/apple-intelligence-foundation-language-models)，也用初始化裁剪6.4B模型的方案得到，实现方案更多参考Sheared LLaMA[M. Xia](https://arxiv.org/abs/2310.06694)。Sheared LLaMA通过将裁剪问题转化为约束优化问题，支持在深度和宽度两个方向同时做裁剪。具体实现上，作者定义了一组取值[0,1]的pruning mask参数，对应于各Layer、MHA、MLP等结构的mask，将维度裁剪的要求转变为对pruning mask参数的约束，通过增广目标函数进行训练得到裁剪模型及初始权重。进一步，作者对裁剪模型初始模型做CPT，进一步回复裁剪模型的能力。CPT过程作者发现不同领域的数据，降低loss的程度不同，与分领域scaling law估算的loss下降不匹配，作者猜测与初始模型在不同领域的能力差异有关，因此提出了一个dynamic batch loading的思路，在训练过程中根据每次batch对不同领域loss下降的幅度，动态调整下个batch采样各领域数据的比例，给下降幅度多的领域更多采样权重，动态实现训练数据的最优配比。深度裁剪的工作如ShortGPT[X. Men](https://arxiv.org/abs/2403.03853)、Shortened LLaMA[B. Kim](https://arxiv.org/abs/2402.02834)等，给出了仅做Forward计算做深度裁剪，及其在内存受限场景上的有效性，裁剪后的CPT训练做能力恢复都是一个必要环节。
+
 # Week-of-year: 12(2024-03-18 ~ 2024-03-24)
 - LLM模型解释 
 
